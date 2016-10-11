@@ -11,10 +11,6 @@ THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 class CSVTests(unittest.TestCase):
     def setUp(self):
         self.test_file_path = os.path.join(THIS_DIR, 'testdata.csv')
-        try:
-            os.remove(self.test_file_path)
-        except Exception:
-            pass
 
     def __create_individual_file(self):
         target_type = TargetCSVType.individual
@@ -24,7 +20,6 @@ class CSVTests(unittest.TestCase):
         target_type = TargetCSVType.family
         csvops.create_file(self.test_file_path, target_type)
 
-    # File will have been removed by setUp
     def test_file_does_not_exist(self):
         self.assertFalse(csvops.check_file_exists(self.test_file_path))
 
@@ -43,6 +38,12 @@ class CSVTests(unittest.TestCase):
     def test_created_file_has_no_additional_headers(self):
         csvops.create_file(self.test_file_path, TargetCSVType.individual)
         self.assertEqual(len(Excavator.individual_csv_headers), csvops.get_header_count(self.test_file_path))
+
+    def tearDown(self):
+        try:
+            os.remove(self.test_file_path)
+        except OSError:
+            pass
 
 if __name__ == '__main__':
     unittest.main()
