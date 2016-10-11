@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/F1toExcavatorMap.iml" filepath="$PROJECT_DIR$/.idea/F1toExcavatorMap.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../F1toExcavatorMapper/.idea/F1toExcavatorMapper.iml" filepath="$PROJECT_DIR$/../F1toExcavatorMapper/.idea/F1toExcavatorMapper.iml" />
     </modules>
   </component>
 </project>

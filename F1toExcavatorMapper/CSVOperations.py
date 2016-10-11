@@ -1,17 +1,22 @@
 import csv
 import os
-from f1toexcavatormap import Final
 from pathlib import Path
+
+from F1toExcavatorMapper.Mapping.TargetCSVType import TargetCSVType
+from F1toExcavatorMapper.Constant import Excavator
+
 
 def get_header_count(filename):
     with open(filename, 'r') as file:
         reader = csv.DictReader(file)
         return len(reader.fieldnames)
 
-def check_headers_match(filename):
-        with open(filename, 'r') as file:
-            reader = csv.DictReader(file)
-            return tuple(reader.fieldnames) == Final.individual_headers
+
+def check_headers_match(filename, file_type):
+    correct_headers = __get_headers(file_type)
+    with open(filename, 'r') as file:
+        reader = csv.DictReader(file)
+        return tuple(reader.fieldnames) == correct_headers
 
 
 def check_file_exists(file_path):
@@ -19,12 +24,20 @@ def check_file_exists(file_path):
     return file.is_file()
 
 
-def create_file(file_name, header_fields):
+def create_file(file_name, file_type):
     __touch(file_name)
-    __write_headers_to_csv(file_name, header_fields)
+    __write_headers_to_csv(file_name, __get_headers(file_type))
 
-# http://stackoverflow.com/questions/1158076/implement-touch-using-python
+
+def __get_headers(file_type):
+    if file_type == TargetCSVType.individual:
+        return Excavator.individual_csv_headers
+    elif file_type == TargetCSVType.family:
+        return Excavator.family_csv_headers
+
+
 def __touch(file_name, mode=0o666, dir_fd=None, **kwargs):
+    # http://stackoverflow.com/questions/1158076/implement-touch-using-python
     flags = os.O_CREAT | os.O_APPEND
     with os.fdopen(os.open(file_name, flags=flags, mode=mode, dir_fd=dir_fd)) as file:
         os.utime(file.fileno() if os.utime in os.supports_fd else file_name,
