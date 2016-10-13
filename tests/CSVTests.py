@@ -9,8 +9,9 @@ THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 class CSVTests(unittest.TestCase):
-    def setUp(self):
-        self.test_file_path = os.path.join(THIS_DIR, 'testdata.csv')
+    @classmethod
+    def setUpClass(cls):
+        cls.test_file_path = os.path.join(THIS_DIR, 'testdata.csv')
 
     def __create_individual_file(self):
         target_type = TargetCSVType.individual
