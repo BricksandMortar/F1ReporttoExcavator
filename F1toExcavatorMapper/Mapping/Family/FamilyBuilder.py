@@ -1,8 +1,11 @@
+import re
+
 from pandas import Series
 import pandas as pd
 
 from F1toExcavatorMapper.Mapping.TargetCSVType import TargetCSVType
 
+regex = re.compile('[^a-zA-Z]')
 
 def build_family_frame(data):
     family_frame = data.loc[:, ['Household_Id', 'Household_Name', 'Street_Address', 'City', 'State_Province',
@@ -17,10 +20,10 @@ def build_family_frame(data):
                                                    'SecondaryState',
                                                    'SecondaryZip',
                                                    'SecondaryCountry'))])
-    family_frame.fillna({'Country': 'US'})
-    family_frame.fillna({'Campus': 'MAIN'})
-    #Fixme I make all your data go away
-    # family_frame = family_frame['State'].apply(clean_up_state)
+    family_frame['Country'] = family_frame['Country'].fillna('US')
+    family_frame['Campus'] = family_frame['Campus'].fillna('MAIN')
+    family_frame['State'] = family_frame['State'].map(clean_up_state)
+    family_frame['ZipCode'] = family_frame['ZipCode'].map(clean_up_zip)
     family_frame = family_frame[list(TargetCSVType.FAMILY.columns)]
     return family_frame
 
@@ -28,7 +31,19 @@ def build_family_frame(data):
 def clean_up_state(value):
     if type(value) is str and not value.isnumeric():
         value = value[:2]
-        value.upper()
+        value = value.upper()
+        value = regex.sub('', value)
+        if value.__len__() == 2:
+            return value
+        else:
+            return ""
+    else:
+        return ""
+
+
+def clean_up_zip(value):
+    if str(value).__len__() == 5:
+        return value
     else:
         return ""
 

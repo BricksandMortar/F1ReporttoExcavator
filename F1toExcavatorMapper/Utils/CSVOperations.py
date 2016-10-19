@@ -34,9 +34,8 @@ def create_file(file_name, file_type):
 
 
 def write_file(file_path, data_frame):
-    #Fixme I add an extra column to your file
     with open(file_path, 'a', newline='') as file:
-        data_frame.to_csv(file, header=False)
+        data_frame.to_csv(file, header=False, index=False )
 
 
 def read_file(file_path, file_type):
