@@ -3,13 +3,7 @@ import os
 from pathlib import Path
 import pandas as pd
 
-from F1toExcavatorMapper.Mapping.TargetCSVType import TargetCSVType
-
-
-def read(filename, number_to_read, offset):
-    data_frame = pd.read_csv(filename, nrows=number_to_read, skiprows=offset)
-    return data_frame
-
+from F1toExcavatorMapper.Exception.IncorrectHeaders import IncorrectHeaders
 
 def get_header_count(filename):
     with open(filename, 'r') as file:
@@ -17,11 +11,16 @@ def get_header_count(filename):
         return len(reader.fieldnames)
 
 
-def check_headers_match(filename, file_type):
+def check_headers_match(file_name, file_type):
     correct_headers = __get_headers(file_type)
-    with open(filename, 'r') as file:
-        reader = csv.DictReader(file)
-        return tuple(reader.fieldnames) == correct_headers
+    with open(file_name, 'r', newline='') as file:
+        reader = pd.read_csv(file)
+        return tuple(reader.columns.values) == correct_headers
+
+
+def check_data_frame_headers_match(data_frame:pd.DataFrame, file_type):
+    correct_headers = __get_headers(file_type)
+    return tuple(data_frame.columns.values) == correct_headers
 
 
 def check_file_exists(file_path):
@@ -35,8 +34,26 @@ def create_file(file_name, file_type):
 
 
 def write_file(file_path, data_frame):
+    #Fixme I add an extra column to your file
     with open(file_path, 'a', newline='') as file:
         data_frame.to_csv(file, header=False)
+
+
+def read_file(file_path, file_type):
+    data = __read_file(file_path)
+    headers_match = check_data_frame_headers_match(data, file_type)
+    if not headers_match:
+        raise IncorrectHeaders(file_path + 'headers do not match', "")
+
+
+def read_file_without_check(file_path):
+    return __read_file(file_path)
+
+
+def __read_file(file_path):
+    with open(file_path, 'r') as file:
+        data = pd.read_csv(file)
+    return data
 
 
 def __get_headers(file_type):

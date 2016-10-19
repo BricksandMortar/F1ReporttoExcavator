@@ -1,7 +1,7 @@
 import os
 import unittest
 
-import F1toExcavatorMapper.CSVOperations as csvops
+import F1toExcavatorMapper.Utils.CSVOperations as csvops
 from F1toExcavatorMapper.Mapping.TargetCSVType import TargetCSVType
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
