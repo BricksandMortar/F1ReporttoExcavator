@@ -1,9 +1,15 @@
 import csv
 import os
 from pathlib import Path
+import pandas as pd
 
 from F1toExcavatorMapper.Mapping.TargetCSVType import TargetCSVType
 from F1toExcavatorMapper.Constant import Excavator
+
+
+def read(filename, number_to_read, offset):
+    data_frame = pd.read_csv(filename, nrows=number_to_read, skiprows=offset)
+    return data_frame
 
 
 def get_header_count(filename):
@@ -48,3 +54,6 @@ def __write_headers_to_csv(filename, fields):
     with open(filename, 'w') as file:
         writer = csv.DictWriter(file, fields, quoting=csv.QUOTE_MINIMAL, quotechar='"')
         writer.writeheader()
+
+
+
