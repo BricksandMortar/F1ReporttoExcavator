@@ -4,7 +4,6 @@ from pathlib import Path
 import pandas as pd
 
 from F1toExcavatorMapper.Mapping.TargetCSVType import TargetCSVType
-from F1toExcavatorMapper.Constant import Excavator
 
 
 def read(filename, number_to_read, offset):
@@ -35,11 +34,13 @@ def create_file(file_name, file_type):
     __write_headers_to_csv(file_name, __get_headers(file_type))
 
 
+def write_file(file_path, data_frame):
+    with open(file_path, 'a', newline='') as file:
+        data_frame.to_csv(file, header=False)
+
+
 def __get_headers(file_type):
-    if file_type == TargetCSVType.individual:
-        return Excavator.individual_csv_headers
-    elif file_type == TargetCSVType.family:
-        return Excavator.family_csv_headers
+    return file_type.columns
 
 
 def __touch(file_name, mode=0o666, dir_fd=None, **kwargs):
@@ -51,7 +52,7 @@ def __touch(file_name, mode=0o666, dir_fd=None, **kwargs):
 
 
 def __write_headers_to_csv(filename, fields):
-    with open(filename, 'w') as file:
+    with open(filename, 'w', newline='') as file:
         writer = csv.DictWriter(file, fields, quoting=csv.QUOTE_MINIMAL, quotechar='"')
         writer.writeheader()
 

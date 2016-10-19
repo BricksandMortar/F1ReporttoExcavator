@@ -2,7 +2,6 @@ import os
 import unittest
 
 import F1toExcavatorMapper.CSVOperations as csvops
-from F1toExcavatorMapper.Constant import Excavator
 from F1toExcavatorMapper.Mapping.TargetCSVType import TargetCSVType
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -14,11 +13,11 @@ class CSVTests(unittest.TestCase):
         cls.test_file_path = os.path.join(THIS_DIR, 'testdata.csv')
 
     def __create_individual_file(self):
-        target_type = TargetCSVType.individual
+        target_type = TargetCSVType.INDIVIDUAL
         csvops.create_file(self.test_file_path, target_type)
 
     def __create_family_file(self):
-        target_type = TargetCSVType.family
+        target_type = TargetCSVType.FAMILY
         csvops.create_file(self.test_file_path, target_type)
 
     def test_file_does_not_exist(self):
@@ -30,15 +29,15 @@ class CSVTests(unittest.TestCase):
 
     def test_created_individual_file_has_correct_headers(self):
         self.__create_individual_file()
-        self.assertTrue(csvops.check_headers_match(self.test_file_path, TargetCSVType.individual))
+        self.assertTrue(csvops.check_headers_match(self.test_file_path, TargetCSVType.INDIVIDUAL))
 
     def test_created_family_file_has_correct_headers(self):
         self.__create_family_file()
-        self.assertTrue(csvops.check_headers_match(self.test_file_path, TargetCSVType.family))
+        self.assertTrue(csvops.check_headers_match(self.test_file_path, TargetCSVType.FAMILY))
 
     def test_created_file_has_no_additional_headers(self):
-        csvops.create_file(self.test_file_path, TargetCSVType.individual)
-        self.assertEqual(len(Excavator.individual_csv_headers), csvops.get_header_count(self.test_file_path))
+        csvops.create_file(self.test_file_path, TargetCSVType.INDIVIDUAL)
+        self.assertEqual(len(TargetCSVType.INDIVIDUAL.columns), csvops.get_header_count(self.test_file_path))
 
     def tearDown(self):
         try:
