@@ -3,6 +3,7 @@ import pandas as pd
 
 from F1toExcavatorMapper.Exception.MappingFileNotFound import MappingFileNotFound
 from F1toExcavatorMapper.Mapping.Family.FamilyBuilder import build_family_frame
+from F1toExcavatorMapper.Mapping.Individual.IndividualBuilder import build_individual_frame
 from F1toExcavatorMapper.Utils import CSVOperations
 from F1toExcavatorMapper.Mapping.TargetCSVType import TargetCSVType
 
@@ -49,14 +50,10 @@ def get_existing_ids(file_path, mode):
         return None
 
 
-def build_individual_frame(data):
-    pass
-
-
 def build_output_frame(data, mode):
     if mode == TargetCSVType.INDIVIDUAL:
         return build_individual_frame(data)
     elif mode == TargetCSVType.FAMILY:
         return build_family_frame(data)
 
-run(None, TargetCSVType.FAMILY)
+run(None, TargetCSVType.INDIVIDUAL)

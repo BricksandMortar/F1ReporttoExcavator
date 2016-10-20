@@ -9,18 +9,20 @@ regex = re.compile('[^a-zA-Z]')
 
 
 def build_family_frame(data):
+    #See columns in IndividualBuilder
     family_frame = data.loc[:, ['Household_Id', 'Household_Name', 'Street_Address', 'City', 'State_Province',
                                 'Postal_Code_5']]
     family_frame = family_frame.rename(columns={'Household_Id': 'FamilyId', 'Household_Name': 'FamilyName',
                                                 'Street_Address': 'Address', 'State_Province': 'State',
                                                 'Postal_Code_5': 'ZipCode'})
 
-    family_frame = pd.concat([family_frame, pd.DataFrame(columns=('Country', 'CreatedDate', 'Campus', 'Address2', 'SecondaryAddress',
-                                                   'SecondaryAddress2',
-                                                   'SecondaryCity',
-                                                   'SecondaryState',
-                                                   'SecondaryZip',
-                                                   'SecondaryCountry'))])
+    family_frame = pd.concat(
+        [family_frame, pd.DataFrame(columns=('Country', 'CreatedDate', 'Campus', 'Address2', 'SecondaryAddress',
+                                             'SecondaryAddress2',
+                                             'SecondaryCity',
+                                             'SecondaryState',
+                                             'SecondaryZip',
+                                             'SecondaryCountry'))])
     family_frame['Country'] = family_frame['Country'].fillna('US')
     family_frame['Campus'] = family_frame['Campus'].fillna('MAIN')
     family_frame['State'] = family_frame['State'].map(clean_up_state)
@@ -47,4 +49,3 @@ def clean_up_zip(value):
         return value
     else:
         return ""
-
