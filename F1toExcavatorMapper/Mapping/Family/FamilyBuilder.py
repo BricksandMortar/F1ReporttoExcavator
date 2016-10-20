@@ -7,6 +7,7 @@ from F1toExcavatorMapper.Mapping.TargetCSVType import TargetCSVType
 
 regex = re.compile('[^a-zA-Z]')
 
+
 def build_family_frame(data):
     family_frame = data.loc[:, ['Household_Id', 'Household_Name', 'Street_Address', 'City', 'State_Province',
                                 'Postal_Code_5']]
