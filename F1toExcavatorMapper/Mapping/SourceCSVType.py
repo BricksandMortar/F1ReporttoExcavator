@@ -2,7 +2,7 @@ from enum import Enum
 
 
 class SourceCSVType(Enum):
-    INDIVIDUAL_HOUSEHOLD = (('•ÈÀIndividual_ID',
+    INDIVIDUAL_HOUSEHOLD = (('Individual_ID',
                              'Member_Envelope',
                              'Barcode',
                              'Title',

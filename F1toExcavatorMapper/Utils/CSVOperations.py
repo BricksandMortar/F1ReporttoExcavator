@@ -4,6 +4,8 @@ from pathlib import Path
 import pandas as pd
 
 from F1toExcavatorMapper.Exception.IncorrectHeaders import IncorrectHeaders
+from F1toExcavatorMapper.Mapping import TargetCSVType
+
 
 def get_header_count(filename):
     with open(filename, 'r') as file:
@@ -38,26 +40,32 @@ def write_file(file_path, data_frame):
         data_frame.to_csv(file, header=False, index=False )
 
 
-def read_file(file_path, file_type):
-    data = __read_file(file_path)
+def read_file(file_path, file_type, index):
+    data = __read_file(file_path, index)
     headers_match = check_data_frame_headers_match(data, file_type)
     if not headers_match:
         raise IncorrectHeaders(file_path + 'headers do not match', "")
 
 
-def read_file_without_check(file_path):
-    return __read_file(file_path)
+def read_file_without_check(file_path, index):
+    return __read_file(file_path, index)
 
 
-def __read_file(file_path):
+def __read_file(file_path, index):
     with open(file_path, 'r') as file:
-        data = pd.read_csv(file)
+        data = pd.read_csv(file, index_col=index)
     return data
 
 
 def __get_headers(file_type):
     return file_type.columns
 
+
+def __get_index_of_header(mode:TargetCSVType):
+    headers = __get_headers(mode)
+    for index in range(len(headers)):
+        if headers[index] == mode.source_primary_key:
+            return index
 
 def __touch(file_name, mode=0o666, dir_fd=None, **kwargs):
     # http://stackoverflow.com/questions/1158076/implement-touch-using-python
