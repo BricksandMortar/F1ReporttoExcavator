@@ -2,6 +2,7 @@ import os
 import unittest
 
 import F1toExcavatorMapper.Utils.CSVOperations as csvops
+from F1toExcavatorMapper.Mapping.Mapper import get_index_of_header
 from F1toExcavatorMapper.Mapping.TargetCSVType import TargetCSVType
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -38,6 +39,11 @@ class CSVTests(unittest.TestCase):
     def test_created_file_has_no_additional_headers(self):
         csvops.create_file(self.test_file_path, TargetCSVType.INDIVIDUAL)
         self.assertEqual(len(TargetCSVType.INDIVIDUAL.columns), csvops.get_header_count(self.test_file_path))
+
+    def test_file_delete(self):
+        csvops.create_file(self.test_file_path, TargetCSVType.INDIVIDUAL)
+        csvops.delete_file(self.test_file_path)
+        self.assertFalse(csvops.check_file_exists(self.test_file_path))
 
     def tearDown(self):
         try:

@@ -20,7 +20,7 @@ def check_headers_match(file_name, file_type):
         return tuple(reader.columns.values) == correct_headers
 
 
-def check_data_frame_headers_match(data_frame:pd.DataFrame, file_type):
+def check_data_frame_headers_match(data_frame: pd.DataFrame, file_type):
     correct_headers = __get_headers(file_type)
     return tuple(data_frame.columns.values) == correct_headers
 
@@ -35,9 +35,13 @@ def create_file(file_name, file_type):
     __write_headers_to_csv(file_name, __get_headers(file_type))
 
 
+def delete_file(file_path):
+    os.remove(file_path)
+
+
 def write_file(file_path, data_frame):
     with open(file_path, 'a', newline='') as file:
-        data_frame.to_csv(file, header=False, index=False )
+        data_frame.to_csv(file, header=False, index=False)
 
 
 def read_file(file_path, file_type, index):
@@ -61,11 +65,12 @@ def __get_headers(file_type):
     return file_type.columns
 
 
-def __get_index_of_header(mode:TargetCSVType):
+def __get_index_of_header(mode: TargetCSVType):
     headers = __get_headers(mode)
     for index in range(len(headers)):
         if headers[index] == mode.source_primary_key:
             return index
+
 
 def __touch(file_name, mode=0o666, dir_fd=None, **kwargs):
     # http://stackoverflow.com/questions/1158076/implement-touch-using-python
@@ -79,6 +84,3 @@ def __write_headers_to_csv(filename, fields):
     with open(filename, 'w', newline='') as file:
         writer = csv.DictWriter(file, fields, quoting=csv.QUOTE_MINIMAL, quotechar='"')
         writer.writeheader()
-
-
-

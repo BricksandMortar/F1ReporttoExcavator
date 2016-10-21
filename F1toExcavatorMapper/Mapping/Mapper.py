@@ -23,6 +23,7 @@ def get_index_of_header(mode:TargetCSVType):
     for index in range(len(headers)):
         if headers[index] == primary_key:
             return index
+    return None
 
 
 def __get_source_file_primary_key(mode:TargetCSVType):
@@ -34,7 +35,7 @@ def __get_source_file_primary_key(mode:TargetCSVType):
 
 def run(source_file_path, mode):
     source_file_path = r"C:\Users\arran\Dropbox\Bricks and Mortar\RVC_Data_Mapping\X9400_no_attributes.csv"
-    existing_ids = set_up(source_file_path, mode)
+    set_up(source_file_path, mode)
     data = CSVOperations.read_file_without_check(source_file_path, get_index_of_header(mode))
 
     output_data = build_output_frame(data, mode)
@@ -49,21 +50,22 @@ def set_up(source_file_path, mode):
     if not CSVOperations.check_file_exists(source_file_path):
         raise MappingFileNotFound
 
-    existing_ids = None
-    if not CSVOperations.check_file_exists(target_file_path):
-        CSVOperations.create_file(target_file_path, mode)
-    else:
-        existing_ids = get_existing_ids(target_file_path, mode)
-    return existing_ids
+    # existing_ids = None
+    # if not CSVOperations.check_file_exists(target_file_path):
+    #     CSVOperations.create_file(target_file_path, mode)
+    # else:
+    #     existing_ids = get_existing_ids(target_file_path, mode)
+    # return existing_ids
 
 
-def get_existing_ids(file_path, mode):
-    target_data_frame = CSVOperations.read_file(file_path, mode, get_index_of_header(mode))
-    if target_data_frame is not None:
-        existing_ids = target_data_frame[mode.primary_key].tolist()
-        return existing_ids
-    else:
-        return None
+# FIXME #1 Resumption with existing ids is not supported
+# def get_existing_ids(file_path, mode):
+#     target_data_frame = CSVOperations.read_file(file_path, mode, get_index_of_header(mode))
+#     if target_data_frame is not None:
+#         existing_ids = target_data_frame[mode.primary_key].tolist()
+#         return existing_ids
+#     else:
+#         return None
 
 
 def build_output_frame(data, mode):
@@ -71,5 +73,3 @@ def build_output_frame(data, mode):
         return build_individual_frame(data)
     elif mode == TargetCSVType.FAMILY:
         return build_family_frame(data)
-
-run(None, TargetCSVType.INDIVIDUAL)
