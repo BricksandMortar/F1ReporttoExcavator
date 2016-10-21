@@ -35,9 +35,19 @@ def create_file(file_name, file_type):
     __write_headers_to_csv(file_name, __get_headers(file_type))
 
 
-def delete_file(file_path):
-    os.remove(file_path)
+def delete_write(target_file_path, output_data):
+    delete_file(target_file_path)
+    __write_file_with_headers(target_file_path, output_data)
 
+
+def delete_file(file_path):
+    if check_file_exists(file_path):
+        os.remove(file_path)
+
+
+def __write_file_with_headers(file_path, data_frame):
+    with open(file_path, 'a', newline='') as file:
+        data_frame.to_csv(file, index=False)
 
 def write_file(file_path, data_frame):
     with open(file_path, 'a', newline='') as file:

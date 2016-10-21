@@ -2,7 +2,7 @@ import argparse
 
 import yaml
 
-import F1toExcavatorMapper.Mapping.Mapper as mapper
+import F1toExcavatorMapper.Mapping.Mapper as Mapper
 from F1toExcavatorMapper.Exception import SettingsFileNotFound
 from F1toExcavatorMapper.Mapping.SourceCSVType import SourceCSVType
 
@@ -12,7 +12,7 @@ def run():
     for source_file_path, file_type in settings.items():
         source_type = get_source_csv_type(file_type)
         for target_type in source_type.target_types:
-            mapper.run(source_file_path, target_type, source_type.mode)
+            Mapper.run(source_file_path, target_type, source_type)
 
 
 def get_settings():

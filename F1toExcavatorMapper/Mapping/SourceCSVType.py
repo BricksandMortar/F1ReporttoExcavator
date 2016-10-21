@@ -101,7 +101,7 @@ class SourceCSVType(Enum):
                    'attribute_group_name',
                    ',attribute_name	start_date,',
                    'end_date,comment'
-                   ), Mode.APPEND)
+                   ), TargetCSVType.INDIVIDUAL, Mode.APPEND)
 
     def __init__(self, columns, target_types, mode):
         self.columns = columns

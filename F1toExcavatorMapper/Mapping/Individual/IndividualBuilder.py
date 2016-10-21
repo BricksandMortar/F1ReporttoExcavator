@@ -2,25 +2,24 @@ import re
 
 from pandas import Series
 import pandas as pd
+import F1toExcavatorMapper.Utils.CSVOperations as csvops
 
 from F1toExcavatorMapper.Mapping.TargetCSVType import TargetCSVType
 
 regex = re.compile('[^a-zA-Z]')
 
 
-def add_attributes_to_frame(data):
+def add_attributes_to_frame(data, individual_file_path):
+    existing_individual_data = csvops.read_file_without_check(individual_file_path, 0)
     pass
-
 
 def build_individual_core_frame(data):
     # Select the subset of columns needed for mapping
     individual_frame = data.loc[:,
-                       ['Household_Id', 'Household_Name', 'First_Record', 'Individual_ID', 'First_Name', 'Goes_By', 'Middle_Name',
-                                                                                                         'Last_Name',
-                        'Suffix', 'Marital_Status', 'Mobile_Phone', 'Work_Phone',
-                        'Unsubscribed',
-                        'Gender', 'DOB', 'Title', 'Prefix', 'Household_Position', 'Status', 'Status_Group',
-                        'Preferred_Email', 'Personal_Email', 'InFellowship_Email']]
+                       ['Household_Id', 'Household_Name', 'First_Record', 'Individual_ID', 'First_Name', 'Goes_By',
+                        'Middle_Name', 'Last_Name', 'Suffix', 'Marital_Status', 'Mobile_Phone', 'Work_Phone',
+                        'Unsubscribed', 'Gender', 'DOB', 'Title', 'Prefix', 'Household_Position', 'Status',
+                        'Status_Group', 'Preferred_Email', 'Personal_Email', 'InFellowship_Email']]
     # Rename columns to match Excavator naming
     individual_frame = individual_frame.rename(columns={'Household_Id': 'FamilyId', 'Household_Name': 'FamilyName',
                                                         'First_Record': 'CreatedDate', 'Individual_ID': 'PersonId',
@@ -30,14 +29,16 @@ def build_individual_core_frame(data):
                                                         'Work_Phone': 'WorkPhone', 'DOB': 'DateOfBirth',
                                                         'Household_Position': 'FamilyRole',
                                                         'Status': 'ConnectionStatus', 'Status_Group': 'RecordStatus',
-                                                        'InFellowship_Email': 'Email', 'Goes_By': 'NickName', 'Middle_Name':'MiddleName'})
+                                                        'InFellowship_Email': 'Email', 'Goes_By': 'NickName',
+                                                        'Middle_Name': 'MiddleName'})
     # Add blank columns that are required
     individual_frame = pd.concat([individual_frame, pd.DataFrame(columns=('HomePhone', 'SMS Allowed?', 'School',
                                                                           'GraduationDate',
                                                                           'AnniversaryDate',
                                                                           'GeneralNote',
                                                                           'MedicalNote',
-                                                                          'SecurityNote', 'IsDeceased', 'IsEmailActive', 'Allow Bulk Email?'))])
+                                                                          'SecurityNote', 'IsDeceased', 'IsEmailActive',
+                                                                          'Allow Bulk Email?'))])
     # Fill default values and apply mapping functions
     individual_frame['SMS Allowed?'] = individual_frame['SMS Allowed?'].fillna('Yes')
     individual_frame['Prefix'] = individual_frame.apply(get_prefix, axis=1)
@@ -101,4 +102,3 @@ def is_email_active(value):
         return 'No'
     else:
         return 'Yes'
-
