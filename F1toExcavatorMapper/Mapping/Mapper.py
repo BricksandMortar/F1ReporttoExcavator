@@ -52,7 +52,7 @@ def set_up(source_file_path, target_file_type, mode):
     target_file_path = get_target_file_path(target_file_type, source_file_path)
 
     if not CSVOperations.check_file_exists(source_file_path):
-        raise MappingFileNotFound
+        raise MappingFileNotFound('Mapping File Not Found', source_file_path)
 
     if CSVOperations.check_file_exists(target_file_path) and mode != Mode.APPEND:
         CSVOperations.delete_file(target_file_path)
@@ -60,12 +60,12 @@ def set_up(source_file_path, target_file_type, mode):
     if not CSVOperations.check_file_exists(target_file_path):
         CSVOperations.create_file(target_file_path, target_file_type)
 
-    # existing_ids = None
-    # if not CSVOperations.check_file_exists(target_file_path):
-    #     CSVOperations.create_file(target_file_path, mode)
-    # else:
-    #     existing_ids = get_existing_ids(target_file_path, mode)
-    # return existing_ids
+        # existing_ids = None
+        # if not CSVOperations.check_file_exists(target_file_path):
+        #     CSVOperations.create_file(target_file_path, mode)
+        # else:
+        #     existing_ids = get_existing_ids(target_file_path, mode)
+        # return existing_ids
 
 
 # FIXME #1 Resumption with existing ids is not supported
@@ -87,4 +87,6 @@ def build_output_frame(data, target_type, source_type, source_file_path):
     elif target_type == TargetCSVType.FAMILY:
         return build_family_frame(data)
 
-run()
+
+run(r'C:\Users\arran\Dropbox\Bricks and Mortar\RVC_Data_Mapping\A2501E_ConnectionStepsAttributes.csv', target_file_type=TargetCSVType.INDIVIDUAL,
+    source_type=SourceCSVType.SourceCSVType.ATTRIBUTES)
