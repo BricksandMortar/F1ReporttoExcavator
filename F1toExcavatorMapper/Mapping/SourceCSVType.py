@@ -1,5 +1,8 @@
 from enum import Enum
 
+from F1toExcavatorMapper.Mapping.Mode import Mode
+from F1toExcavatorMapper.Mapping.TargetCSVType import TargetCSVType
+
 
 class SourceCSVType(Enum):
     INDIVIDUAL_HOUSEHOLD = (('Individual_ID',
@@ -92,8 +95,15 @@ class SourceCSVType(Enum):
                              'Pastor_Staff',
                              'Department',
                              'Comment'
-                             ), None)
+                             ), (TargetCSVType.FAMILY, TargetCSVType.INDIVIDUAL), Mode.CREATE)
 
-    def __init__(self, columns, mapping):
+    ATTRIBUTES = (('individual_id_1,',
+                   'attribute_group_name',
+                   ',attribute_name	start_date,',
+                   'end_date,comment'
+                   ), Mode.APPEND)
+
+    def __init__(self, columns, target_types, mode):
         self.columns = columns
-        self.mapping = mapping
+        self.target_types = target_types
+        self.mode = mode

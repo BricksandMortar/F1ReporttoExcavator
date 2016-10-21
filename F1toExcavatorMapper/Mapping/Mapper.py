@@ -1,10 +1,11 @@
 import os
 import pandas as pd
+from F1toExcavatorMapper.Mapping.Mode import Mode
 
 from F1toExcavatorMapper.Exception.MappingFileNotFound import MappingFileNotFound
 from F1toExcavatorMapper.Mapping import SourceCSVType
 from F1toExcavatorMapper.Mapping.Family.FamilyBuilder import build_family_frame
-from F1toExcavatorMapper.Mapping.Individual.IndividualBuilder import build_individual_frame
+from F1toExcavatorMapper.Mapping.Individual.IndividualBuilder import build_individual_core_frame
 from F1toExcavatorMapper.Utils import CSVOperations
 from F1toExcavatorMapper.Mapping.TargetCSVType import TargetCSVType
 
@@ -33,22 +34,26 @@ def __get_source_file_primary_key(mode:TargetCSVType):
         return 'Household_Id'
 
 
-def run(source_file_path, mode):
-    source_file_path = r"C:\Users\arran\Dropbox\Bricks and Mortar\RVC_Data_Mapping\X9400_no_attributes.csv"
-    set_up(source_file_path, mode)
+def run(source_file_path, target_file_type: TargetCSVType, mode):
+    set_up(source_file_path, target_file_type, mode)
     data = CSVOperations.read_file_without_check(source_file_path, get_index_of_header(mode))
 
     output_data = build_output_frame(data, mode)
     CSVOperations.write_file(get_target_file_path(mode, source_file_path), output_data)
 
 
-def set_up(source_file_path, mode):
-    source_file_path = source_file_path
-    mode = mode
-    target_file_path = get_target_file_path(mode, source_file_path)
+def set_up(source_file_path, target_file_type, mode):
+    target_file_path = get_target_file_path(target_file_type, source_file_path)
 
     if not CSVOperations.check_file_exists(source_file_path):
         raise MappingFileNotFound
+
+    if CSVOperations.check_file_exists(target_file_path) and mode != Mode.APPEND:
+        CSVOperations.delete_file(target_file_path)
+
+    if not CSVOperations.check_file_exists(target_file_path):
+        CSVOperations.create_file(target_file_path, target_file_type)
+
 
     # existing_ids = None
     # if not CSVOperations.check_file_exists(target_file_path):
@@ -70,6 +75,6 @@ def set_up(source_file_path, mode):
 
 def build_output_frame(data, mode):
     if mode == TargetCSVType.INDIVIDUAL:
-        return build_individual_frame(data)
+        return build_individual_core_frame(data)
     elif mode == TargetCSVType.FAMILY:
         return build_family_frame(data)

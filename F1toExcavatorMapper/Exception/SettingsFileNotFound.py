@@ -1,7 +1,4 @@
-from F1toExcavatorMapper.Exception import MappingFileNotFound
-
-
-class F1IndividualHouseholdReportNotFound(MappingFileNotFound):
+class MappingFileNotFound(FileNotFoundError):
     """Exception raised for errors in the input.
 
     Attributes:

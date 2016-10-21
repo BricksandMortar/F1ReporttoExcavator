@@ -8,7 +8,11 @@ from F1toExcavatorMapper.Mapping.TargetCSVType import TargetCSVType
 regex = re.compile('[^a-zA-Z]')
 
 
-def build_individual_frame(data):
+def add_attributes_to_frame(data):
+    pass
+
+
+def build_individual_core_frame(data):
     # Select the subset of columns needed for mapping
     individual_frame = data.loc[:,
                        ['Household_Id', 'Household_Name', 'First_Record', 'Individual_ID', 'First_Name', 'Goes_By', 'Middle_Name',
