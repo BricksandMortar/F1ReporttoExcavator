@@ -9,16 +9,14 @@ from F1toExcavatorMapper.Mapping.TargetCSVType import TargetCSVType
 regex = re.compile('[^a-zA-Z]')
 
 
-def add_attributes_to_frame(data, individual_file_path):
-    existing_individual_data = csvops.read_file_without_check(individual_file_path, 4)
-    # Fixme Max TypeError: unorderable types: float() >= str()
-    start_date_most_recents = data.groupby(['individual_id_1', 'attribute_name']).start_date.transform(max)
-    data = data[data.start_date == start_date_most_recents]
-    pivoted_attribute_frame = data.pivot(index='individual_id_1', columns='attribute_name', values='start_date')
-    data.join(pivoted_attribute_frame).drop(('attribute_group_name', 'end_date', 'comment'), axis=1)
-    data = data.index.names = ['PersonId']
-    #Todo join on PersonId with existing_individual data
-    return data
+def add_attributes_to_frame(attribute_data, individual_file_path):
+    existing_individual_data = csvops.read_file_without_check(individual_file_path, 3)
+    attribute_data['start_date'] = pd.to_datetime(attribute_data['start_date'])
+    attribute_data = attribute_data.groupby(['individual_id_1', 'attribute_name']).max()['start_date'].reset_index()
+    attribute_data = attribute_data.pivot(index='individual_id_1', columns='attribute_name', values='start_date')
+    attribute_data.index.rename('PersonId', True)
+    result = pd.concat([existing_individual_data, attribute_data], axis=1, join_axes=[attribute_data.index])
+    return result
 
 
 def __add_atribute_to_person(data_frame, value, person_id, attribute_name):
