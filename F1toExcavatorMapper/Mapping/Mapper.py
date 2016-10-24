@@ -88,5 +88,5 @@ def build_output_frame(data, target_type, source_type, source_file_path):
         return build_family_frame(data)
 
 
-run(r'C:\Users\arran\Dropbox\Bricks and Mortar\RVC_Data_Mapping\A2501E_ConnectionStepsAttributes.csv', target_file_type=TargetCSVType.INDIVIDUAL,
-    source_type=SourceCSVType.SourceCSVType.ATTRIBUTES)
+# run(r'C:\Users\arran\Dropbox\Bricks and Mortar\RVC_Data_Mapping\A2501E_ConnectionStepsAttributes.csv', target_file_type=TargetCSVType.INDIVIDUAL,
+#     source_type=SourceCSVType.SourceCSVType.ATTRIBUTES)
