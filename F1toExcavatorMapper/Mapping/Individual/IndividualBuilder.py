@@ -10,11 +10,19 @@ regex = re.compile('[^a-zA-Z]')
 
 
 def add_attributes_to_frame(attribute_data, individual_file_path):
-    existing_individual_data = csvops.read_file_without_check(individual_file_path, 3)
+    existing_individual_data = csvops.read_file_without_check(individual_file_path, None)
+    # By manually indexing we keep the column *and* get the index
+    existing_individual_data.index = existing_individual_data.set_index(['PersonId'])
+
+    # Convert to DateTime
     attribute_data['start_date'] = pd.to_datetime(attribute_data['start_date'])
+    # Remove duplicates and take the most recent
     attribute_data = attribute_data.groupby(['individual_id_1', 'attribute_name']).max()['start_date'].reset_index()
+    # Pivot to get columns of attribute names with values below
     attribute_data = attribute_data.pivot(index='individual_id_1', columns='attribute_name', values='start_date')
+    # Change index to PersonId so we can concat
     attribute_data.index.rename('PersonId', True)
+    # Result is attributes appended to the existing Individual_Id data
     result = pd.concat([existing_individual_data, attribute_data], axis=1, join_axes=[attribute_data.index])
     return result
 
