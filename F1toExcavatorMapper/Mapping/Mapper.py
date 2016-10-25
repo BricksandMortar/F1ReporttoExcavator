@@ -45,7 +45,7 @@ def run(source_file_path, target_file_type: TargetCSVType, source_type):
     if mode == Mode.APPEND:
         CSVOperations.delete_write(target_file_path, output_data)
     else:
-        CSVOperations.write_file(get_target_file_path(mode, source_file_path), output_data)
+        CSVOperations.write_file(get_target_file_path(target_file_type, source_file_path), output_data)
 
 
 def set_up(source_file_path, target_file_type, mode):

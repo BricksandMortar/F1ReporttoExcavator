@@ -49,6 +49,7 @@ def __write_file_with_headers(file_path, data_frame):
     with open(file_path, 'a', newline='') as file:
         data_frame.to_csv(file, index=False)
 
+
 def write_file(file_path, data_frame):
     with open(file_path, 'a', newline='') as file:
         data_frame.to_csv(file, header=False, index=False)
