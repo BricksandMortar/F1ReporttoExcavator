@@ -12,7 +12,7 @@ regex = re.compile('[^a-zA-Z]')
 def add_attributes_to_frame(attribute_data, individual_file_path):
     existing_individual_data = csvops.read_file_without_check(individual_file_path, None)
     # By manually indexing we keep the column *and* get the index
-    existing_individual_data.index = existing_individual_data.set_index(['PersonId'])
+    existing_individual_data = existing_individual_data.set_index(['PersonId'])
 
     # Convert to DateTime
     attribute_data['start_date'] = pd.to_datetime(attribute_data['start_date'])

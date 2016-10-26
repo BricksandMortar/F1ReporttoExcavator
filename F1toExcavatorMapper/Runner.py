@@ -5,6 +5,7 @@ import yaml
 import F1toExcavatorMapper.Mapping.Mapper as Mapper
 from F1toExcavatorMapper.Exception import SettingsFileNotFound
 from F1toExcavatorMapper.Mapping.SourceCSVType import SourceCSVType
+from F1toExcavatorMapper.Utils.OrderedYamlLoader import ordered_load
 
 
 def run():
@@ -24,10 +25,11 @@ def get_settings():
     settings_location = args.__dict__['settings_location']
     with open(settings_location, 'r') as file:
         try:
-            settings = yaml.load(file)
+            settings = ordered_load(file, yaml.SafeLoader)
             return settings
         except:
             raise SettingsFileNotFound
+
 
 def get_source_csv_type(file_type):
     for source_type in SourceCSVType:
