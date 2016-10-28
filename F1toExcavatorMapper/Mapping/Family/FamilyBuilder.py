@@ -9,7 +9,7 @@ regex = re.compile('[^a-zA-Z]')
 
 
 def build_family_frame(data):
-    #See columns in IndividualBuilder
+    # See columns in IndividualBuilder
     family_frame = data.loc[:, ['Household_Id', 'Household_Name', 'Street_Address', 'City', 'State_Province',
                                 'Postal_Code_5']]
     family_frame = family_frame.rename(columns={'Household_Id': 'FamilyId', 'Household_Name': 'FamilyName',
@@ -28,6 +28,7 @@ def build_family_frame(data):
     family_frame['State'] = family_frame['State'].map(clean_up_state)
     family_frame['ZipCode'] = family_frame['ZipCode'].map(clean_up_zip)
     family_frame = family_frame[list(TargetCSVType.FAMILY.columns)]
+    family_frame = family_frame.drop_duplicates('FamilyId', keep='last')
     return family_frame
 
 
