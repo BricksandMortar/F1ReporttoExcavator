@@ -12,8 +12,8 @@ from F1toExcavatorMapper.Utils.OrderedYamlLoader import ordered_load
 def run():
     settings = get_settings()
     # Cleanup old files
-    for file_type, source_file_path in settings.items():
-        CSVOperations.delete_file(source_file_path)
+    # for file_type, source_file_path in settings.items():
+    #     CSVOperations.delete_file(source_file_path)
 
     # Make new files
     for file_type, source_file_path in settings.items():
