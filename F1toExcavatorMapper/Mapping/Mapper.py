@@ -46,7 +46,7 @@ def __get_source_file_primary_keys(target_type: TargetCSVType):
 def run(source_file_path, target_file_type: TargetCSVType, source_type: SourceCSVType):
     mode = source_type.mode
     set_up(source_file_path, target_file_type, mode)
-    data = CSVOperations.read_file_without_check(source_file_path, get_index_of_header(mode))
+    data = CSVOperations.read_file_without_check(source_file_path, get_index_of_header(target_file_type, source_type))
 
     output_data = build_output_frame(data, target_file_type, source_type, source_file_path)
 
