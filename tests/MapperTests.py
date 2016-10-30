@@ -6,6 +6,7 @@ import pandas as pd
 import F1toExcavatorMapper.Utils.CSVOperations as csvops
 from F1toExcavatorMapper.Mapping import Mapper
 from F1toExcavatorMapper.Mapping.Mapper import get_index_of_header
+from F1toExcavatorMapper.Mapping.SourceCSVType import SourceCSVType
 from F1toExcavatorMapper.Mapping.TargetCSVType import TargetCSVType
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -140,10 +141,13 @@ class CSVTests(unittest.TestCase):
     #     self.assertListEqual(Mapper.get_existing_ids(self.test_file_path, TargetCSVType.INDIVIDUAL), [3, 3551])
 
     def test_get_index_of_f1_family_header(self):
-        self.assertEqual(get_index_of_header(TargetCSVType.FAMILY), 48)
+        self.assertEqual(get_index_of_header(TargetCSVType.FAMILY, SourceCSVType.INDIVIDUAL_HOUSEHOLD), 48)
 
     def test_get_index_of_f1_individual_header(self):
-        self.assertEqual(get_index_of_header(TargetCSVType.INDIVIDUAL), 0)
+        self.assertEqual(get_index_of_header(TargetCSVType.INDIVIDUAL, SourceCSVType.INDIVIDUAL_HOUSEHOLD), 0)
+
+    def test_get_index_of_f1_attribute_header(self):
+        self.assertEqual(get_index_of_header(TargetCSVType.INDIVIDUAL, SourceCSVType.ATTRIBUTES), 0)
 
     def tearDown(self):
         try:

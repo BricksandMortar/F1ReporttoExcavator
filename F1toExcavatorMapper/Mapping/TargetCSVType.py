@@ -32,7 +32,7 @@ class TargetCSVType(Enum):
                                'GeneralNote',
                                'MedicalNote',
                                'SecurityNote',
-                               ), 'Individual_ID')
+                               ), ('Individual_ID', 'individual_id_1'))
 
     FAMILY = ('FamilyId', ('FamilyId',
                            'FamilyName',
@@ -49,9 +49,9 @@ class TargetCSVType(Enum):
                            'SecondaryCity',
                            'SecondaryState',
                            'SecondaryZip',
-                           'SecondaryCountry'), 'Household_Id')
+                           'SecondaryCountry'), ['Household_Id'])
 
     def __init__(self, primary_key, columns, source_primary_key):
         self.primary_key = primary_key
         self.columns = columns
-        self.source_primary_key = primary_key
+        self.source_primary_key = source_primary_key

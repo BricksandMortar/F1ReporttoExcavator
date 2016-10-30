@@ -97,7 +97,7 @@ class SourceCSVType(Enum):
                              'Comment'
                              ), (TargetCSVType.FAMILY, TargetCSVType.INDIVIDUAL), Mode.CREATE)
 
-    ATTRIBUTES = (('individual_id_1,',
+    ATTRIBUTES = (('individual_id_1',
                    'attribute_group_name',
                    ',attribute_name	start_date,',
                    'end_date,comment'
