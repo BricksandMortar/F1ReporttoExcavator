@@ -27,10 +27,6 @@ def add_attributes_to_frame(attribute_data, individual_file_path):
     return result
 
 
-def __add_atribute_to_person(data_frame, value, person_id, attribute_name):
-    return data_frame.set_value(person_id, attribute_name, value)
-
-
 def build_individual_core_frame(data):
     # Select the subset of columns needed for mapping
     individual_frame = data.loc[:,
