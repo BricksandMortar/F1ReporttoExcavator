@@ -146,9 +146,20 @@ class CSVTests(unittest.TestCase):
         target_file_path = Mapper.get_target_file_path(TargetCSVType.FAMILY, self.test_file_path)
         csvops.create_file(target_file_path, TargetCSVType.INDIVIDUAL)
 
-        # Ensure that the old individual CSV was deleted and replaced with a file with CSV headers
+
         Mapper.set_up(target_file_path, TargetCSVType.FAMILY, Mode.Mode.CREATE)
+        # Ensure that the old individual CSV was deleted and replaced with a file with Family CSV headers
         self.assertTrue(csvops.check_headers_match(target_file_path, TargetCSVType.FAMILY))
+
+    def test_set_up_does_not_delete_in_append_mode(self):
+        # Create individual type CSV (called Family.csv)
+        target_file_path = Mapper.get_target_file_path(TargetCSVType.FAMILY, self.test_file_path)
+        csvops.create_file(target_file_path, TargetCSVType.INDIVIDUAL)
+
+        # Should not delete the file, if it does it won't be an INDIVIDUAL type file
+        Mapper.set_up(target_file_path, TargetCSVType.FAMILY, Mode.Mode.APPEND)
+        # Ensure that the old individual CSV was not deleted
+        self.assertTrue(csvops.check_headers_match(target_file_path, TargetCSVType.INDIVIDUAL))
 
     def tearDown(self):
         try:
