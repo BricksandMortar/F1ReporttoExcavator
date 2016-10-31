@@ -18,11 +18,7 @@ def get_target_file_path(target_file_type: TargetCSVType, source_file_path):
     :return: The path where the new target file should be created
     """
     split_path = os.path.split(source_file_path)
-    if target_file_type == TargetCSVType.INDIVIDUAL:
-        return os.path.join(split_path[0], 'Individual.csv')
-    elif target_file_type == TargetCSVType.FAMILY:
-        return os.path.join(split_path[0], 'Family.csv')
-
+    return os.path.join(split_path[0], target_file_type.name.lower())
 
 def get_index_of_header(target_type: TargetCSVType, source_type: SourceCSVType):
     headers = source_type.columns

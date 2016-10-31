@@ -5,7 +5,6 @@ import pandas as pd
 
 import F1toExcavatorMapper.Utils.CSVOperations as csvops
 from F1toExcavatorMapper.Mapping import Mapper
-from F1toExcavatorMapper.Mapping.Mapper import get_index_of_header
 from F1toExcavatorMapper.Mapping.SourceCSVType import SourceCSVType
 from F1toExcavatorMapper.Mapping.TargetCSVType import TargetCSVType
 
@@ -127,27 +126,21 @@ class CSVTests(unittest.TestCase):
         data_frame = pd.DataFrame([series_one, series_two], columns=TargetCSVType.INDIVIDUAL.columns)
         return data_frame
 
-    # Fixme
-    # def test_check_family_existing_ids(self):
-    #     self.__create_family_file()
-    #     data_frame = self.__create_family_data_frame()
-    #     csvops.write_file(self.test_file_path, data_frame)
-    #     self.assertListEqual(Mapper.get_existing_ids(self.test_file_path, TargetCSVType.FAMILY), [1, 26])
-    #
-    # def test_check_individual_existing_ids(self):
-    #     self.__create_individual_file()
-    #     data_frame = self.__create_individual_data_frame()
-    #     csvops.write_file(self.test_file_path, data_frame)
-    #     self.assertListEqual(Mapper.get_existing_ids(self.test_file_path, TargetCSVType.INDIVIDUAL), [3, 3551])
+    def test_get_individual_csv_file_path(self):
+        self.assertEqual(Mapper.get_target_file_path(TargetCSVType.INDIVIDUAL, self.test_file_path), THIS_DIR+'\\'+TargetCSVType.INDIVIDUAL.name.lower())
+
+    def test_get_family_csv_file_path(self):
+        self.assertEqual(Mapper.get_target_file_path(TargetCSVType.FAMILY, self.test_file_path),
+                             THIS_DIR + '\\'+ TargetCSVType.FAMILY.name.lower())
 
     def test_get_index_of_f1_family_header(self):
-        self.assertEqual(get_index_of_header(TargetCSVType.FAMILY, SourceCSVType.INDIVIDUAL_HOUSEHOLD), 48)
+        self.assertEqual(Mapper.get_index_of_header(TargetCSVType.FAMILY, SourceCSVType.INDIVIDUAL_HOUSEHOLD), 48)
 
     def test_get_index_of_f1_individual_header(self):
-        self.assertEqual(get_index_of_header(TargetCSVType.INDIVIDUAL, SourceCSVType.INDIVIDUAL_HOUSEHOLD), 0)
+        self.assertEqual(Mapper.get_index_of_header(TargetCSVType.INDIVIDUAL, SourceCSVType.INDIVIDUAL_HOUSEHOLD), 0)
 
     def test_get_index_of_f1_attribute_header(self):
-        self.assertEqual(get_index_of_header(TargetCSVType.INDIVIDUAL, SourceCSVType.ATTRIBUTES), 0)
+        self.assertEqual(Mapper.get_index_of_header(TargetCSVType.INDIVIDUAL, SourceCSVType.ATTRIBUTES), 0)
 
     def tearDown(self):
         try:
