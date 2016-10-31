@@ -18,14 +18,6 @@ class CSVTests(unittest.TestCase):
     def setUpClass(cls):
         cls.test_file_path = os.path.join(THIS_DIR, 'testdata.csv')
 
-    def __create_individual_file(self):
-        target_type = TargetCSVType.INDIVIDUAL
-        csvops.create_file(self.test_file_path, target_type)
-
-    def __create_family_file(self):
-        target_type = TargetCSVType.FAMILY
-        csvops.create_file(self.test_file_path, target_type)
-
     @staticmethod
     def __create_family_data_frame():
         series_one = {'FamilyId': 1,
@@ -129,11 +121,12 @@ class CSVTests(unittest.TestCase):
         return data_frame
 
     def test_get_individual_csv_file_path(self):
-        self.assertEqual(Mapper.get_target_file_path(TargetCSVType.INDIVIDUAL, self.test_file_path), THIS_DIR+'\\'+TargetCSVType.INDIVIDUAL.name.lower())
+        self.assertEqual(Mapper.get_target_file_path(TargetCSVType.INDIVIDUAL, self.test_file_path),
+                         THIS_DIR + '\\' + TargetCSVType.INDIVIDUAL.name.lower())
 
     def test_get_family_csv_file_path(self):
         self.assertEqual(Mapper.get_target_file_path(TargetCSVType.FAMILY, self.test_file_path),
-                             THIS_DIR + '\\'+ TargetCSVType.FAMILY.name.lower())
+                         THIS_DIR + '\\' + TargetCSVType.FAMILY.name.lower())
 
     def test_get_index_of_f1_family_header(self):
         self.assertEqual(Mapper.get_index_of_header(TargetCSVType.FAMILY, SourceCSVType.INDIVIDUAL_HOUSEHOLD), 48)
@@ -148,9 +141,26 @@ class CSVTests(unittest.TestCase):
         with self.assertRaises(MappingFileNotFound.MappingFileNotFound):
             Mapper.set_up(self.test_file_path, TargetCSVType.INDIVIDUAL, Mode.Mode.APPEND)
 
+    def test_set_up_deletes_in_not_append_mode(self):
+        # Create individual type CSV (called Family.csv)
+        target_file_path = Mapper.get_target_file_path(TargetCSVType.FAMILY, self.test_file_path)
+        csvops.create_file(target_file_path, TargetCSVType.INDIVIDUAL)
+
+        # Ensure that the old individual CSV was deleted and replaced with a file with CSV headers
+        Mapper.set_up(target_file_path, TargetCSVType.FAMILY, Mode.Mode.CREATE)
+        self.assertTrue(csvops.check_headers_match(target_file_path, TargetCSVType.FAMILY))
+
     def tearDown(self):
         try:
             os.remove(self.test_file_path)
+        except OSError:
+            pass
+        try:
+            os.remove(Mapper.get_target_file_path(TargetCSVType.FAMILY, self.test_file_path))
+        except OSError:
+            pass
+        try:
+            os.remove(Mapper.get_target_file_path(TargetCSVType.INDIVIDUAL, self.test_file_path))
         except OSError:
             pass
 
