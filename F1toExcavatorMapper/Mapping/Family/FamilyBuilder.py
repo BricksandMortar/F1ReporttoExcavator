@@ -34,9 +34,8 @@ def build_family_frame(data):
 
 def clean_up_state(value):
     if type(value) is str and not value.isnumeric():
-        value = value[:2]
-        value = value.upper()
         value = regex.sub('', value)
+        value = value.upper()
         if value.__len__() == 2:
             return value
         else:
