@@ -45,7 +45,7 @@ def clean_up_state(value):
 
 
 def clean_up_zip(value):
-    if str(value).__len__() == 5:
+    if str(value).__len__() == 5 and value != 99999:
         return value
     else:
         return ""
