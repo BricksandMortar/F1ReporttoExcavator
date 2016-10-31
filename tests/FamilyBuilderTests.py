@@ -522,5 +522,10 @@ class FamilyBuilderTests(unittest.TestCase):
     def test_check_build_family_frame_campus(self):
         family_frame = FamilyBuilder.build_family_frame(self.__get_individual_household_data_frame())
         npt.assert_array_equal(family_frame['Campus'].unique(), 'MAIN')
+
+    def test_build_family_frame_duplicate_families(self):
+        family_frame = FamilyBuilder.build_family_frame(self.__get_individual_household_data_frame())
+        self.assertFalse(family_frame.duplicated(subset='FamilyId').size> 1)
+
 if __name__ == '__main__':
     unittest.main()
