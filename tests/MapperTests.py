@@ -4,7 +4,9 @@ import unittest
 import pandas as pd
 
 import F1toExcavatorMapper.Utils.CSVOperations as csvops
+from F1toExcavatorMapper.Exception import MappingFileNotFound
 from F1toExcavatorMapper.Mapping import Mapper
+from F1toExcavatorMapper.Mapping import Mode
 from F1toExcavatorMapper.Mapping.SourceCSVType import SourceCSVType
 from F1toExcavatorMapper.Mapping.TargetCSVType import TargetCSVType
 
@@ -141,6 +143,10 @@ class CSVTests(unittest.TestCase):
 
     def test_get_index_of_f1_attribute_header(self):
         self.assertEqual(Mapper.get_index_of_header(TargetCSVType.INDIVIDUAL, SourceCSVType.ATTRIBUTES), 0)
+
+    def test_set_up_no_source_file_path_exception(self):
+        with self.assertRaises(MappingFileNotFound.MappingFileNotFound):
+            Mapper.set_up(self.test_file_path, TargetCSVType.INDIVIDUAL, Mode.Mode.APPEND)
 
     def tearDown(self):
         try:
