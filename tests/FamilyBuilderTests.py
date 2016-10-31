@@ -515,5 +515,12 @@ class FamilyBuilderTests(unittest.TestCase):
         family_frame = FamilyBuilder.build_family_frame(self.__get_individual_household_data_frame())
         npt.assert_array_equal(family_frame.columns.values, TargetCSVType.FAMILY.columns)
 
+    def test_check_build_family_frame_country(self):
+        family_frame = FamilyBuilder.build_family_frame(self.__get_individual_household_data_frame())
+        npt.assert_array_equal(family_frame['Country'].unique(), 'US')
+
+    def test_check_build_family_frame_campus(self):
+        family_frame = FamilyBuilder.build_family_frame(self.__get_individual_household_data_frame())
+        npt.assert_array_equal(family_frame['Campus'].unique(), 'MAIN')
 if __name__ == '__main__':
     unittest.main()
