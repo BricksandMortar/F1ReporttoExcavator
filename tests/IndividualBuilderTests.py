@@ -11,7 +11,6 @@ from F1toExcavatorMapper.Mapping.TargetCSVType import TargetCSVType
 
 
 class IndividualBuilderTests(unittest.TestCase):
-
     fake_head_individual_household = {'Individual_ID': '77071800',
                                       'Member_Envelope': '',
                                       'Barcode': '',
@@ -208,12 +207,25 @@ class IndividualBuilderTests(unittest.TestCase):
         self.assertTrue(np.sum(duplicated) == 0)
 
     def test_email_active(self):
-        unsubscribed = ('','Yes','No')
+        unsubscribed = ('', 'Yes', 'No')
         correct_is_email_active = ('Yes', 'No', 'Yes')
         is_email_active = pd.Series(unsubscribed).map(IndividualBuilder.is_email_active)
-        npt.assert_array_equal(correct_is_email_active, is_email_active)
+        npt.assert_array_equal(is_email_active, correct_is_email_active)
 
-    
+    def test_get_email(self):
+        test_email_data = [{'Preferred_Email': '',
+                            'Email': 'infellowship@fakeinbox.com',
+                            'Personal_Email': 'fred@fakeinbox.com'}, {'Preferred_Email': 'preferredemail@fakeinbox.com',
+                                                                      'Email': '',
+                                                                      'Personal_Email': 'fredpersonal@fakeinbox.com'},
+                           {'Preferred_Email': '',
+                            'Email': '',
+                            'Personal_Email': 'fred@fakeinbox.com'}]
+        correct_emails = ('infellowship@fakeinbox.com', 'preferredemail@fakeinbox.com', 'fred@fakeinbox.com')
+        email_frame = pd.DataFrame(test_email_data)
+        emails = email_frame.apply(IndividualBuilder.get_email, axis=1)
+        npt.assert_array_equal(emails, correct_emails)
+
 
 if __name__ == '__main__':
     unittest.main()
