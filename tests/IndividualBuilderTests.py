@@ -240,6 +240,12 @@ class IndividualBuilderTests(unittest.TestCase):
         correct_answers = ('Inactive', 'Inactive', 'Inactive', 'Active')
         npt.assert_array_equal(data, correct_answers)
 
+    def test_get_household_position(self):
+        test_data = ('Child', 'Head', 'Spouse')
+        correct_answers = ('Child', 'Adult', 'Adult')
+        data = pd.Series(test_data).map(IndividualBuilder.get_household_position)
+        npt.assert_array_equal(data, correct_answers)
+
 
 if __name__ == '__main__':
     unittest.main()
