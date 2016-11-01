@@ -234,6 +234,12 @@ class IndividualBuilderTests(unittest.TestCase):
         deceased_records = pd.DataFrame(test_records).apply(IndividualBuilder.get_is_deceased, axis=1)
         npt.assert_array_equal(deceased_records, correct_is_deceased)
 
+    def test_get_record_status(self):
+        test_data = ('Inactive', 'Deceased', 'System', 'Other')
+        data = pd.Series(test_data).map(IndividualBuilder.get_record_status)
+        correct_answers = ('Inactive', 'Inactive', 'Inactive', 'Active')
+        npt.assert_array_equal(data, correct_answers)
+
 
 if __name__ == '__main__':
     unittest.main()
