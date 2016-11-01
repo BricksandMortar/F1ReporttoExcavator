@@ -2,6 +2,7 @@ import unittest
 from pandas import Series
 import pandas as pd
 import numpy.testing as npt
+import numpy as np
 
 from F1toExcavatorMapper.Mapping.Family import FamilyBuilder
 from F1toExcavatorMapper.Mapping.SourceCSVType import SourceCSVType
@@ -525,7 +526,8 @@ class FamilyBuilderTests(unittest.TestCase):
 
     def test_build_family_frame_duplicate_families(self):
         family_frame = FamilyBuilder.build_family_frame(self.__get_individual_household_data_frame())
-        self.assertFalse(family_frame.duplicated(subset='FamilyId').size> 1)
+        duplicated = family_frame.duplicated(subset='FamilyId')
+        self.assertTrue(np.sum(duplicated) == 0)
 
 if __name__ == '__main__':
     unittest.main()
