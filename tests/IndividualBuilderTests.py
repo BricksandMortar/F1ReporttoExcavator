@@ -12,7 +12,6 @@ from F1toExcavatorMapper.Mapping.TargetCSVType import TargetCSVType
 
 class IndividualBuilderTests(unittest.TestCase):
 
-
     fake_head_individual_household = {'Individual_ID': '77071800',
                                       'Member_Envelope': '',
                                       'Barcode': '',
@@ -207,6 +206,14 @@ class IndividualBuilderTests(unittest.TestCase):
         individual_frame = IndividualBuilder.build_individual_core_frame(self.__get_individual_household_data_frame())
         duplicated = individual_frame.duplicated(subset='PersonId')
         self.assertTrue(np.sum(duplicated) == 0)
+
+    def test_email_active(self):
+        unsubscribed = ('','Yes','No')
+        correct_is_email_active = ('Yes', 'No', 'Yes')
+        is_email_active = pd.Series(unsubscribed).map(IndividualBuilder.is_email_active)
+        npt.assert_array_equal(correct_is_email_active, is_email_active)
+
+    
 
 if __name__ == '__main__':
     unittest.main()
