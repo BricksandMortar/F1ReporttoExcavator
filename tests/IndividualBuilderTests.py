@@ -203,15 +203,7 @@ class IndividualBuilderTests(unittest.TestCase):
         individual_frame = IndividualBuilder.build_individual_core_frame(self.__get_individual_household_data_frame())
         npt.assert_array_equal(individual_frame.columns.values, TargetCSVType.INDIVIDUAL.columns)
 
-    def test_check_build_family_frame_country(self):
-        family_frame = FamilyBuilder.build_family_frame(self.__get_individual_household_data_frame())
-        npt.assert_array_equal(family_frame['Country'].unique(), 'US')
-
-    def test_check_build_family_frame_campus(self):
-        family_frame = FamilyBuilder.build_family_frame(self.__get_individual_household_data_frame())
-        npt.assert_array_equal(family_frame['Campus'].unique(), 'MAIN')
-
-    def test_build_family_frame_duplicate_families(self):
+    def test_build_individual_frame_duplicate_families(self):
         individual_frame = IndividualBuilder.build_individual_core_frame(self.__get_individual_household_data_frame())
         duplicated = individual_frame.duplicated(subset='PersonId')
         self.assertTrue(np.sum(duplicated) == 0)
