@@ -226,6 +226,14 @@ class IndividualBuilderTests(unittest.TestCase):
         emails = email_frame.apply(IndividualBuilder.get_email, axis=1)
         npt.assert_array_equal(emails, correct_emails)
 
+    def test_get_is_deceased(self):
+        test_records = [{'RecordStatus': 'Deceased',
+                         'IsDeceased': ''}, {'RecordStatus': 'preferredemail@fakeinbox.com',
+                                                                       'IsDeceased': ''}]
+        correct_is_deceased = ('Yes', 'No')
+        deceased_records = pd.DataFrame(test_records).apply(IndividualBuilder.get_is_deceased, axis=1)
+        npt.assert_array_equal(deceased_records, correct_is_deceased)
+
 
 if __name__ == '__main__':
     unittest.main()
