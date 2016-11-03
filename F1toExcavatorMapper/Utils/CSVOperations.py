@@ -55,20 +55,20 @@ def write_file(file_path, data_frame):
         data_frame.to_csv(file, header=False, index=False)
 
 
-def read_file(file_path, file_type, index):
-    data = __read_file(file_path, index)
+def read_file(file_path, file_type):
+    data = __read_file(file_path)
     headers_match = check_data_frame_headers_match(data, file_type)
     if not headers_match:
         raise IncorrectHeaders(file_path + 'headers do not match', "")
 
 
 def read_file_without_check(file_path, index):
-    return __read_file(file_path, index)
+    return __read_file(file_path)
 
 
-def __read_file(file_path, index):
+def __read_file(file_path):
     with open(file_path, 'r') as file:
-        data = pd.read_csv(file, index_col=index)
+        data = pd.read_csv(file, index_col=False)
     return data
 
 
