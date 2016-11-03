@@ -27,6 +27,8 @@ def build_family_frame(data):
     family_frame['Campus'] = family_frame['Campus'].fillna('MAIN')
     family_frame['State'] = family_frame['State'].map(clean_up_state)
     family_frame['ZipCode'] = family_frame['ZipCode'].map(clean_up_zip)
+    # Convert to Int
+    family_frame['FamilyId'] = family_frame['FamilyId'].astype(int)
     family_frame = family_frame[list(TargetCSVType.FAMILY.columns)]
     family_frame = family_frame.drop_duplicates('FamilyId', keep='last')
     return family_frame

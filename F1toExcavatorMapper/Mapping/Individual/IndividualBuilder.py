@@ -19,6 +19,9 @@ def add_attributes_to_frame(attribute_data, individual_file_path):
 
     # Convert to DateTime
     attribute_data['start_date'] = pd.to_datetime(attribute_data['start_date'])
+    # Convert to Int
+    attribute_data['individual_id_1'] = attribute_data['individual_id_1'].astype(int)
+    existing_individual_data['PersonId'] = existing_individual_data['PersonId'].astype(int)
     # Remove duplicates and take the most recent
     attribute_data = attribute_data.groupby(['individual_id_1', 'attribute_name']).max()['start_date'].reset_index()
     # Pivot to get columns of attribute names with values below
