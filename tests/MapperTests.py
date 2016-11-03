@@ -122,11 +122,11 @@ class CSVTests(unittest.TestCase):
 
     def test_get_individual_csv_file_path(self):
         self.assertEqual(Mapper.get_target_file_path(TargetCSVType.INDIVIDUAL, self.test_file_path),
-                         THIS_DIR + '\\' + TargetCSVType.INDIVIDUAL.name.lower())
+                         THIS_DIR + '\\' + TargetCSVType.INDIVIDUAL.name.lower() + '.csv')
 
     def test_get_family_csv_file_path(self):
         self.assertEqual(Mapper.get_target_file_path(TargetCSVType.FAMILY, self.test_file_path),
-                         THIS_DIR + '\\' + TargetCSVType.FAMILY.name.lower())
+                         THIS_DIR + '\\' + TargetCSVType.FAMILY.name.lower()+'.csv')
 
     def test_get_index_of_f1_family_header(self):
         self.assertEqual(Mapper.get_index_of_header(TargetCSVType.FAMILY, SourceCSVType.INDIVIDUAL_HOUSEHOLD), 48)
@@ -145,7 +145,6 @@ class CSVTests(unittest.TestCase):
         # Create individual type CSV (called Family.csv)
         target_file_path = Mapper.get_target_file_path(TargetCSVType.FAMILY, self.test_file_path)
         csvops.create_file(target_file_path, TargetCSVType.INDIVIDUAL)
-
 
         Mapper.set_up(target_file_path, TargetCSVType.FAMILY, Mode.Mode.CREATE)
         # Ensure that the old individual CSV was deleted and replaced with a file with Family CSV headers
