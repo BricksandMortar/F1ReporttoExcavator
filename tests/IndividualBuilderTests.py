@@ -197,7 +197,7 @@ class IndividualBuilderTests(unittest.TestCase):
         return pd.DataFrame([self.fake_spouse_individual_household, self.fake_head_individual_household],
                             columns=SourceCSVType.INDIVIDUAL_HOUSEHOLD.columns)
 
-    def test_check_build_family_frame_columns(self):
+    def test_check_build_individual_frame_columns(self):
         individual_frame = IndividualBuilder.build_individual_core_frame(self.__get_individual_household_data_frame())
         npt.assert_array_equal(individual_frame.columns.values, TargetCSVType.INDIVIDUAL.columns)
 
