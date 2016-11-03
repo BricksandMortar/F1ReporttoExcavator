@@ -3,14 +3,17 @@ import re
 from pandas import Series
 import pandas as pd
 import F1toExcavatorMapper.Utils.CSVOperations as csvops
+import numpy as np
 
+from F1toExcavatorMapper.Mapping import Mapper
+from F1toExcavatorMapper.Mapping.SourceCSVType import SourceCSVType
 from F1toExcavatorMapper.Mapping.TargetCSVType import TargetCSVType
 
 regex = re.compile('[^a-zA-Z]')
 
 
 def add_attributes_to_frame(attribute_data, individual_file_path):
-    existing_individual_data = csvops.read_file_without_check(individual_file_path, None)
+    existing_individual_data = csvops.read_file_without_check(individual_file_path, Mapper.get_index_of_header(TargetCSVType.INDIVIDUAL, SourceCSVType.ATTRIBUTES))
     # By manually indexing we keep the column *and* get the index
     existing_individual_data.index = existing_individual_data.set_index(['PersonId'])
 
@@ -62,6 +65,14 @@ def build_individual_core_frame(data):
     individual_frame['Email'] = individual_frame.apply(get_email, axis=1)
     individual_frame['IsEmailActive'] = individual_frame['Unsubscribed'].map(is_email_active)
     individual_frame['Allow Bulk Email?'] = individual_frame['IsEmailActive']
+    #
+    # # Drop blank id rows
+    # individual_frame = individual_frame[np.isfinite(individual_frame['PersonId'])]
+    # individual_frame = individual_frame[np.isfinite(individual_frame['FamilyId'])]
+
+    # Ensure that IDs are ints not floats
+    individual_frame['PersonId'] = individual_frame['PersonId'].astype(int)
+    individual_frame['FamilyId'] = individual_frame['FamilyId'].astype(int)
 
     # Reorder columns and select only the ones needed by Excavator
     individual_frame = individual_frame[list(TargetCSVType.INDIVIDUAL.columns)]
