@@ -62,7 +62,7 @@ def read_file(file_path, file_type):
         raise IncorrectHeaders(file_path + 'headers do not match', "")
 
 
-def read_file_without_check(file_path, index):
+def read_file_without_check(file_path):
     return __read_file(file_path)
 
 

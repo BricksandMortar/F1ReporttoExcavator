@@ -128,15 +128,6 @@ class CSVTests(unittest.TestCase):
         self.assertEqual(Mapper.get_target_file_path(TargetCSVType.FAMILY, self.test_file_path),
                          THIS_DIR + '\\' + TargetCSVType.FAMILY.name.lower()+'.csv')
 
-    def test_get_index_of_f1_family_header(self):
-        self.assertEqual(Mapper.get_index_of_header(TargetCSVType.FAMILY, SourceCSVType.INDIVIDUAL_HOUSEHOLD), 48)
-
-    def test_get_index_of_f1_individual_header(self):
-        self.assertEqual(Mapper.get_index_of_header(TargetCSVType.INDIVIDUAL, SourceCSVType.INDIVIDUAL_HOUSEHOLD), 0)
-
-    def test_get_index_of_f1_attribute_header(self):
-        self.assertEqual(Mapper.get_index_of_header(TargetCSVType.INDIVIDUAL, SourceCSVType.ATTRIBUTES), 0)
-
     def test_set_up_no_source_file_path_exception(self):
         with self.assertRaises(MappingFileNotFound.MappingFileNotFound):
             Mapper.set_up(self.test_file_path, TargetCSVType.INDIVIDUAL, Mode.Mode.APPEND)

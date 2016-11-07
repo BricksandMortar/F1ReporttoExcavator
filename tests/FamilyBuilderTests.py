@@ -10,10 +10,6 @@ from F1toExcavatorMapper.Mapping.TargetCSVType import TargetCSVType
 
 
 class FamilyBuilderTests(unittest.TestCase):
-
-
-
-
     fake_head_individual_household = {'Individual_ID': '77071800',
                                       'Member_Envelope': '',
                                       'Barcode': '',
@@ -196,8 +192,9 @@ class FamilyBuilderTests(unittest.TestCase):
                                         'Department': '',
                                         'Comment': ''}
 
-    def __get_individual_household_data_frame(self):
-        return pd.DataFrame([self.fake_spouse_individual_household, self.fake_head_individual_household],
+    def setUp(self):
+        self.family_builder = FamilyBuilder.FamilyBuilder.Instance()
+        self.data = pd.DataFrame([self.fake_spouse_individual_household, self.fake_head_individual_household],
                             columns=SourceCSVType.INDIVIDUAL_HOUSEHOLD.columns)
 
     def test_clean_up_state(self):
@@ -260,7 +257,7 @@ class FamilyBuilderTests(unittest.TestCase):
                        'Missouri',
                        'AK'
                        )
-        states = pd.Series(test_states).map(FamilyBuilder.clean_up_state)
+        states = pd.Series(test_states).map( self.family_builder.clean_up_state)
         correct_states = pd.Series(('TX',
                                     'LA',
                                     'TN',
@@ -510,23 +507,23 @@ class FamilyBuilderTests(unittest.TestCase):
                         '',
                         ''
                         )
-        test_zips = pd.Series(zips).map(FamilyBuilder.clean_up_zip)
+        test_zips = pd.Series(zips).map( self.family_builder.clean_up_zip)
         npt.assert_array_equal(correct_zips, test_zips)
 
     def test_check_build_family_frame_columns(self):
-        family_frame = FamilyBuilder.build_family_frame(self.__get_individual_household_data_frame())
+        family_frame = self.family_builder.map(self.data, None)
         npt.assert_array_equal(family_frame.columns.values, TargetCSVType.FAMILY.columns)
 
     def test_check_build_family_frame_country(self):
-        family_frame = FamilyBuilder.build_family_frame(self.__get_individual_household_data_frame())
+        family_frame = self.family_builder.map(self.data, None)
         npt.assert_array_equal(family_frame['Country'].unique(), 'US')
 
     def test_check_build_family_frame_campus(self):
-        family_frame = FamilyBuilder.build_family_frame(self.__get_individual_household_data_frame())
+        family_frame = self.family_builder.map(self.data, None)
         npt.assert_array_equal(family_frame['Campus'].unique(), 'MAIN')
 
     def test_build_family_frame_duplicate_families(self):
-        family_frame = FamilyBuilder.build_family_frame(self.__get_individual_household_data_frame())
+        family_frame = self.family_builder.map(self.data, None)
         duplicated = family_frame.duplicated(subset='FamilyId')
         self.assertTrue(np.sum(duplicated) == 0)
 

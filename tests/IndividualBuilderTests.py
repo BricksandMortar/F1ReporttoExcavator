@@ -193,23 +193,24 @@ class IndividualBuilderTests(unittest.TestCase):
                                         'Department': '',
                                         'Comment': ''}
 
-    def __get_individual_household_data_frame(self):
-        return pd.DataFrame([self.fake_spouse_individual_household, self.fake_head_individual_household],
-                            columns=SourceCSVType.INDIVIDUAL_HOUSEHOLD.columns)
+    def setUp(self):
+        self.individual_builder = IndividualBuilder.IndividualBuilder.Instance()
+        self.data = pd.DataFrame([self.fake_spouse_individual_household, self.fake_head_individual_household],
+                                 columns=SourceCSVType.INDIVIDUAL_HOUSEHOLD.columns)
 
     def test_check_build_individual_frame_columns(self):
-        individual_frame = IndividualBuilder.build_individual_core_frame(self.__get_individual_household_data_frame())
+        individual_frame = self.individual_builder.build_individual_core_frame(self.data)
         npt.assert_array_equal(individual_frame.columns.values, TargetCSVType.INDIVIDUAL.columns)
 
     def test_build_individual_frame_duplicate_families(self):
-        individual_frame = IndividualBuilder.build_individual_core_frame(self.__get_individual_household_data_frame())
+        individual_frame = self.individual_builder.build_individual_core_frame(self.data)
         duplicated = individual_frame.duplicated(subset='PersonId')
         self.assertTrue(np.sum(duplicated) == 0)
 
     def test_email_active(self):
         unsubscribed = ('', 'Yes', 'No')
         correct_is_email_active = ('Yes', 'No', 'Yes')
-        is_email_active = pd.Series(unsubscribed).map(IndividualBuilder.is_email_active)
+        is_email_active = pd.Series(unsubscribed).map(self.individual_builder.is_email_active)
         npt.assert_array_equal(is_email_active, correct_is_email_active)
 
     def test_get_email(self):
@@ -223,27 +224,27 @@ class IndividualBuilderTests(unittest.TestCase):
                             'Personal_Email': 'fred@fakeinbox.com'}]
         correct_emails = ('infellowship@fakeinbox.com', 'preferredemail@fakeinbox.com', 'fred@fakeinbox.com')
         email_frame = pd.DataFrame(test_email_data)
-        emails = email_frame.apply(IndividualBuilder.get_email, axis=1)
+        emails = email_frame.apply(self.individual_builder.get_email, axis=1)
         npt.assert_array_equal(emails, correct_emails)
 
     def test_get_is_deceased(self):
         test_records = [{'RecordStatus': 'Deceased',
                          'IsDeceased': ''}, {'RecordStatus': 'preferredemail@fakeinbox.com',
-                                                                       'IsDeceased': ''}]
+                                             'IsDeceased': ''}]
         correct_is_deceased = ('Yes', 'No')
-        deceased_records = pd.DataFrame(test_records).apply(IndividualBuilder.get_is_deceased, axis=1)
+        deceased_records = pd.DataFrame(test_records).apply(self.individual_builder.get_is_deceased, axis=1)
         npt.assert_array_equal(deceased_records, correct_is_deceased)
 
     def test_get_record_status(self):
         test_data = ('Inactive', 'Deceased', 'System', 'Other')
-        data = pd.Series(test_data).map(IndividualBuilder.get_record_status)
+        data = pd.Series(test_data).map(self.individual_builder.get_record_status)
         correct_answers = ('Inactive', 'Inactive', 'Inactive', 'Active')
         npt.assert_array_equal(data, correct_answers)
 
     def test_get_household_position(self):
         test_data = ('Child', 'Head', 'Spouse')
         correct_answers = ('Child', 'Adult', 'Adult')
-        data = pd.Series(test_data).map(IndividualBuilder.get_household_position)
+        data = pd.Series(test_data).map(self.individual_builder.get_household_position)
         npt.assert_array_equal(data, correct_answers)
 
 

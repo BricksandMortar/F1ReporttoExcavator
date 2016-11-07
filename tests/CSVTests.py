@@ -2,7 +2,6 @@ import os
 import unittest
 
 import F1toExcavatorMapper.Utils.CSVOperations as csvops
-from F1toExcavatorMapper.Mapping.Mapper import get_index_of_header
 from F1toExcavatorMapper.Mapping.SourceCSVType import SourceCSVType
 from F1toExcavatorMapper.Mapping.TargetCSVType import TargetCSVType
 import numpy.testing as npt
@@ -48,11 +47,11 @@ class CSVTests(unittest.TestCase):
         self.assertFalse(csvops.check_file_exists(self.test_file_path))
 
     def test_read_attribute_data_has_correct_columns(self):
-        df = csvops.read_file_without_check(THIS_DIR+'/testdata/A2501E_ConnectionStepsAttributes.csv', 0)
+        df = csvops.read_file_without_check(THIS_DIR+'/testdata/A2501E_ConnectionStepsAttributes.csv')
         npt.assert_array_equal(df.columns.values, SourceCSVType.ATTRIBUTES.columns)
 
     def test_read_individual_household_has_correct_columns(self):
-        df = csvops.read_file_without_check(THIS_DIR+'/testdata/X9400_no_attributes.csv', 0)
+        df = csvops.read_file_without_check(THIS_DIR+'/testdata/X9400_no_attributes.csv')
         npt.assert_array_equal(df.columns.values, SourceCSVType.INDIVIDUAL_HOUSEHOLD.columns)
 
     def tearDown(self):
