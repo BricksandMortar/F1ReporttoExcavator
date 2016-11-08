@@ -36,11 +36,14 @@ class FinancialBuilder:
                            ['Contributor_ID', 'Fund', 'SubFund_Code', 'Received_Date', 'Reference', 'Memo',
                             'Type', 'Amount', 'True_Value', 'Transaction_ID', 'Batch_Entered', 'Batch_Name',
                             'Batch_Date']]
-        unique_batches = data.groupby(['Batch_Name', 'Batch_Date'])
+        # unique_batches = data.groupby(['Batch_Name', 'Batch_Date'])
+        unique_batches = data.copy()
         unique_batches['ConcatId'] = unique_batches['Batch_Date'].map(str) + unique_batches['Batch_Name']
         unique_batches = unique_batches[['Batch_Name', 'Batch_Date', 'ConcatId']]
-        unique_batches['Id'] = pd.factorize(unique_batches['ConcatId'])[0]
-        self.batch_data = unique_batches
+        id_values = pd.factorize(unique_batches['ConcatId'])[0]
+        unique_batches['Id'] = pd.Series(id_values)
+        unique_batches = unique_batches.dropna()
+        self.batch_data = unique_batches.drop_duplicates()
         pass
         # # Rename columns to match Excavator naming
         # individual_frame = individual_frame.rename(columns={'Household_Id': 'FamilyId', 'Household_Name': 'FamilyName',
@@ -81,4 +84,3 @@ class FinancialBuilder:
         # individual_frame = individual_frame[list(TargetCSVType.INDIVIDUAL.columns)]
         # self.individual_frame = individual_frame
         # return individual_frame
-        pass

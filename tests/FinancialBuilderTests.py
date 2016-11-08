@@ -1,7 +1,16 @@
 import unittest
+import os
+import F1toExcavatorMapper.Utils.CSVOperations as csvops
+from F1toExcavatorMapper.Mapping.Finances.FinancialBuilder import FinancialBuilder
+from F1toExcavatorMapper.Mapping.SourceCSVType import SourceCSVType
+
+THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 class FinancialBuilderTests(unittest.TestCase):
+    def setUp(self):
+        self.fb = FinancialBuilder.Instance()
+
     def test_number_of_batches_equals_number_of_group_by_batch_name_date(self):
         pass
 
@@ -56,8 +65,14 @@ class FinancialBuilderTests(unittest.TestCase):
     def test_contributions_columns_match(self):
         pass
 
+    # Shared Data Tests
     def test_batch_shared_data_contains_correct_number_of_batches(self):
-        pass
+        df = csvops.read_file_without_check(THIS_DIR + "\\testdata\\X1050_Giving.csv")
+        self.fb.map(df, None)
+        ids = self.fb.batch_data['Id']
+        unique_values = ids.value_counts(dropna=True)
+        unique_size = unique_values.size
+        self.assertEqual(unique_size, 4)
 
     def test_batch_shared_data_columns_are_all_populated(self):
         pass
