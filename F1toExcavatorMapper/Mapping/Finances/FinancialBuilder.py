@@ -1,3 +1,5 @@
+import pandas as pd
+
 from F1toExcavatorMapper.Utils.Singleton import Singleton
 
 
@@ -7,17 +9,13 @@ class FinancialBuilder:
         self.batch_data = None
 
     def map(self, data, source_type):
-        if self.batch_data is None:
+        if self.batch_data is not None:
             self.build_batches(data)
         else:
             self.build_contributions(data)
 
     def build_batches(self, data):
-        # # By manually indexing we keep the column *and* get the index
-        # self.individual_frame.index = self.individual_frame.set_index(['PersonId'])
-        #
-        # # Convert to DateTime
-        # attribute_data['start_date'] = pd.to_datetime(attribute_data['start_date'])
+        # data['start_date'] = pd.to_datetime(data['start_date'])
         # # Convert to Int
         # attribute_data['individual_id_1'] = attribute_data['individual_id_1'].astype(int)
         # self.individual_frame['PersonId'] = self.individual_frame['PersonId'].astype(int)
@@ -33,12 +31,17 @@ class FinancialBuilder:
         pass
 
     def build_contributions(self, data):
-        # # Select the subset of columns needed for mapping
-        # individual_frame = data.loc[:,
-        #                    ['Household_Id', 'Household_Name', 'First_Record', 'Individual_ID', 'First_Name', 'Goes_By',
-        #                     'Middle_Name', 'Last_Name', 'Suffix', 'Marital_Status', 'Mobile_Phone', 'Work_Phone',
-        #                     'Unsubscribed', 'Gender', 'DOB', 'Title', 'Prefix', 'Household_Position', 'Status',
-        #                     'Status_Group', 'Preferred_Email', 'Personal_Email', 'InFellowship_Email']]
+        # Select the subset of columns needed for mapping
+        data = data.loc[:,
+                           ['Contributor_ID', 'Fund', 'SubFund_Code', 'Received_Date', 'Reference', 'Memo',
+                            'Type', 'Amount', 'True_Value', 'Transaction_ID', 'Batch_Entered', 'Batch_Name',
+                            'Batch_Date']]
+        unique_batches = data.groupby(['Batch_Name', 'Batch_Date'])
+        unique_batches['ConcatId'] = unique_batches['Batch_Date'].map(str) + unique_batches['Batch_Name']
+        unique_batches = unique_batches[['Batch_Name', 'Batch_Date', 'ConcatId']]
+        unique_batches['Id'] = pd.factorize(unique_batches['ConcatId'])[0]
+        self.batch_data = unique_batches
+        pass
         # # Rename columns to match Excavator naming
         # individual_frame = individual_frame.rename(columns={'Household_Id': 'FamilyId', 'Household_Name': 'FamilyName',
         #                                                     'First_Record': 'CreatedDate', 'Individual_ID': 'PersonId',

@@ -56,5 +56,14 @@ class FinancialBuilderTests(unittest.TestCase):
     def test_contributions_columns_match(self):
         pass
 
+    def test_batch_shared_data_contains_correct_number_of_batches(self):
+        pass
+
+    def test_batch_shared_data_columns_are_all_populated(self):
+        pass
+
+    def test_batch_shared_data_columns_are_correct_types(self):
+        pass
+
 if __name__ == '__main__':
     unittest.main()
