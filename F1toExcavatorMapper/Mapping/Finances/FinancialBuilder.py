@@ -1,4 +1,8 @@
+import math
+from re import sub
+
 import pandas as pd
+from decimal import Decimal
 
 from F1toExcavatorMapper.Utils.Singleton import Singleton
 
@@ -7,6 +11,7 @@ from F1toExcavatorMapper.Utils.Singleton import Singleton
 class FinancialBuilder:
     def __init__(self):
         self.batch_data = None
+        self.batch_data_dict = None
 
     def map(self, data, source_type):
         if self.batch_data is not None:
@@ -33,55 +38,78 @@ class FinancialBuilder:
     def build_contributions(self, data):
         # Select the subset of columns needed for mapping
         data = data.loc[:,
-                           ['Contributor_ID', 'Fund', 'SubFund_Code', 'Received_Date', 'Reference', 'Memo',
-                            'Type', 'Amount', 'True_Value', 'Transaction_ID', 'Batch_Entered', 'Batch_Name',
-                            'Batch_Date']]
-        # unique_batches = data.groupby(['Batch_Name', 'Batch_Date'])
+               ['Contributor_ID', 'Fund', 'SubFund_Code', 'Received_Date', 'Reference', 'Memo',
+                'Type', 'Amount', 'True_Value', 'Transaction_ID', 'Batch_Entered', 'Batch_Name',
+                'Batch_Date']]
+
+        # Create shared batch data
         unique_batches = data.copy()
+        # Get a concat id
         unique_batches['ConcatId'] = unique_batches['Batch_Date'].map(str) + unique_batches['Batch_Name']
         unique_batches = unique_batches[['Batch_Name', 'Batch_Date', 'ConcatId']]
+        # Generate ids
         id_values = pd.factorize(unique_batches['ConcatId'])[0]
+        # Get ids starting at 1
+        id_values += 1
         unique_batches['Id'] = pd.Series(id_values)
         unique_batches = unique_batches.dropna()
         unique_batches['Batch_Name'] = unique_batches['Batch_Name'].apply(str)
+        unique_batches['Id'] = unique_batches['Id'].apply(int)
         self.batch_data = unique_batches.drop_duplicates()
-        pass
-        # # Rename columns to match Excavator naming
-        # individual_frame = individual_frame.rename(columns={'Household_Id': 'FamilyId', 'Household_Name': 'FamilyName',
-        #                                                     'First_Record': 'CreatedDate', 'Individual_ID': 'PersonId',
-        #                                                     'First_Name': 'FirstName', 'Last_Name': 'LastName',
-        #                                                     'Marital_Status': 'MaritalStatus',
-        #                                                     'Mobile_Phone': 'MobilePhone',
-        #                                                     'Work_Phone': 'WorkPhone', 'DOB': 'DateOfBirth',
-        #                                                     'Household_Position': 'FamilyRole',
-        #                                                     'Status': 'ConnectionStatus',
-        #                                                     'Status_Group': 'RecordStatus',
-        #                                                     'InFellowship_Email': 'Email', 'Goes_By': 'NickName',
-        #                                                     'Middle_Name': 'MiddleName'})
-        # # Add blank columns that are required
-        # individual_frame = pd.concat([individual_frame, pd.DataFrame(columns=('HomePhone', 'SMS Allowed?', 'School',
-        #                                                                       'GraduationDate',
-        #                                                                       'AnniversaryDate',
-        #                                                                       'GeneralNote',
-        #                                                                       'MedicalNote',
-        #                                                                       'SecurityNote', 'IsDeceased',
-        #                                                                       'IsEmailActive',
-        #                                                                       'Allow Bulk Email?'))])
-        # # Fill default values and apply mapping functions
-        # individual_frame['SMS Allowed?'] = individual_frame['SMS Allowed?'].fillna('Yes')
-        # individual_frame['Prefix'] = individual_frame.apply(self.get_prefix, axis=1)
-        # individual_frame['FamilyRole'] = individual_frame['FamilyRole'].map(self.get_household_position)
-        # individual_frame['IsDeceased'] = individual_frame.apply(self.get_is_deceased, axis=1)
-        # individual_frame['RecordStatus'] = individual_frame['RecordStatus'].map(self.get_record_status)
-        # individual_frame['Email'] = individual_frame.apply(self.get_email, axis=1)
-        # individual_frame['IsEmailActive'] = individual_frame['Unsubscribed'].map(self.is_email_active)
-        # individual_frame['Allow Bulk Email?'] = individual_frame['IsEmailActive']
-        #
-        # # Ensure that IDs are ints not floats
-        # individual_frame['PersonId'] = individual_frame['PersonId'].astype(int)
-        # individual_frame['FamilyId'] = individual_frame['FamilyId'].astype(int)
-        #
-        # # Reorder columns and select only the ones needed by Excavator
-        # individual_frame = individual_frame[list(TargetCSVType.INDIVIDUAL.columns)]
-        # self.individual_frame = individual_frame
-        # return individual_frame
+        # Generate a dict to map more easily from
+        self.batch_data_dict = pd.Series(unique_batches.Id.values, index=unique_batches.ConcatId).to_dict()
+
+        # Rename columns to Excavator naming
+        contributions_data = data.rename(columns={'Contributor_ID': 'IndividualID', 'Fund': 'FundName',
+                                                  'SubFund_Code': 'SubFundName', 'Received_Date': 'ReceivedDate',
+                                                  'Type': 'ContributionTypeName', 'Transaction_ID': 'ContributionID'})
+        # Add blank columns to be filled by data created with logic
+        # Add blank columns that are required
+        contributions_data = pd.concat(
+            [contributions_data, pd.DataFrame(columns=(
+                'SubFundIsActive', 'CheckNumber', 'StatedValue', 'FundGLAccount', 'SubFundGLAccount',
+                'ContributionBatchID'))])
+
+        # Get ContributionBatchId from shared batch id
+        contributions_data['ConcatId'] = contributions_data['Batch_Date'].map(str) + unique_batches['Batch_Name']
+        contributions_data['ContributionBatchID'] = contributions_data['ConcatId'].map(self.batch_data_dict)
+
+        # Map complex columns
+        contributions_data['SubFundIsActive'] = contributions_data['SubFundIsActive'].fillna('Yes')
+        contributions_data['Amount'] = contributions_data['Amount'].map(self.strip_amount)
+        contributions_data['CheckNumber'] = contributions_data.apply(self.get_check_number, axis=1)
+        contributions_data['StatedValue'] = contributions_data.apply(self.get_stated_value, axis=1)
+
+        # Cleanup data
+        contributions_data = contributions_data.dropna(subset=['ContributionID', 'IndividualID', 'ContributionBatchID', 'FundName', 'Amount'])
+        # Set correct types
+        contributions_data['ContributionID'] = contributions_data['ContributionID'].astype(int)
+        contributions_data['IndividualID'] = contributions_data['IndividualID'].astype(int)
+        contributions_data['ContributionBatchID'] = contributions_data['ContributionBatchID'].astype(int)
+        contributions_data['CheckNumber'] = contributions_data['CheckNumber'].astype(int)
+        contributions_data['Amount'] = contributions_data['Amount'].astype(float)
+        contributions_data['StatedValue'] = contributions_data['StatedValue'].astype(float)
+
+        from F1toExcavatorMapper.Mapping.TargetCSVType import TargetCSVType
+        contributions_data = contributions_data[list(TargetCSVType.CONTRIBUTIONS.columns)]
+        print(contributions_data)
+        return contributions_data
+
+    @staticmethod
+    def strip_amount(value):
+        return Decimal(sub(r'[^\d.]', '', value))
+
+    @staticmethod
+    def get_check_number(row):
+        contribution_type = row['ContributionTypeName']
+        if contribution_type == 'Check':
+            return row['Reference']
+        return ''
+
+    @staticmethod
+    def get_stated_value(row):
+        amount = row['Amount']
+        true_value = row['True_Value']
+        if true_value is None or true_value == '' or math.isnan(true_value):
+            return Decimal(amount)
+        return Decimal(true_value)

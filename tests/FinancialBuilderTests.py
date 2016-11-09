@@ -2,10 +2,13 @@ import unittest
 import os
 
 import numpy as np
-from pandas import DatetimeIndex, Timestamp
+import numpy.testing as npt
+import pandas as pd
+from pandas import Timestamp
 
 import F1toExcavatorMapper.Utils.CSVOperations as csvops
 from F1toExcavatorMapper.Mapping.Finances.FinancialBuilder import FinancialBuilder
+from F1toExcavatorMapper.Mapping.TargetCSVType import TargetCSVType
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -41,40 +44,59 @@ class FinancialBuilderTests(unittest.TestCase):
     def test_batch_columns_match(self):
         pass
 
+    #Contributon Tests
+
     def test_all_contributions_have_funds(self):
-        pass
-
-    def test_all_contributions_have_gls(self):
-        pass
-
-    def test_all_contributions_have_an_active_value(self):
-        pass
+        df = csvops.read_file_without_check(THIS_DIR + "\\testdata\\X1050_Giving.csv")
+        contributions_data = self.fb.build_contributions(df)
+        self.assertFalse(pd.isnull(contributions_data['FundName']).any())
 
     def test_all_contributions_received_dates_are_dates(self):
-        pass
+        df = csvops.read_file_without_check(THIS_DIR + "\\testdata\\X1050_Giving.csv")
+        contributions_data = self.fb.build_contributions(df)
+        self.assertTrue(contributions_data['ReceivedDate'].dtype == Timestamp)
 
     def test_all_check_contributions_have_check_number(self):
-        pass
+        df = csvops.read_file_without_check(THIS_DIR + "\\testdata\\X1050_Giving.csv")
+        contributions_data = self.fb.build_contributions(df)
+        check_contributions = contributions_data.loc[contributions_data['ContributionTypeName'] == 'Check']
+        self.assertFalse(pd.isnull(check_contributions['CheckNumber']).any())
 
     def test_contributions_amount_equals_contribution_amount(self):
-        pass
+        df = csvops.read_file_without_check(THIS_DIR + "\\testdata\\X1050_Giving.csv")
+        contributions_data = self.fb.build_contributions(df)
+        self.assertEqual(contributions_data['Amount'].sum(), 5415)
 
     def test_all_contribution_batch_ids_have_batches(self):
-        pass
+        df = csvops.read_file_without_check(THIS_DIR + "\\testdata\\X1050_Giving.csv")
+        contributions_data = self.fb.build_contributions(df)
+        npt.assert_array_equal(contributions_data['ContributionBatchID'].unique(), self.fb.batch_data['Id'])
+
+    def test_contributions_ids_are_ints(self):
+        df = csvops.read_file_without_check(THIS_DIR + "\\testdata\\X1050_Giving.csv")
+        contributions_data = self.fb.build_contributions(df)
+        contribution_id_is_int = contributions_data['ContributionID'].dtype == int
+        contribution_batch_id_is_int = contributions_data['ContributionBatchID'].dtype == int
+        contribution_individual_id_is_int = contributions_data['IndividualID'].dtype == int
+        self.assertTrue(contribution_id_is_int and contribution_batch_id_is_int and contribution_individual_id_is_int)
 
     def test_all_contribution_ids_are_unique(self):
-        pass
+        df = csvops.read_file_without_check(THIS_DIR + "\\testdata\\X1050_Giving.csv")
+        contributions_data = self.fb.build_contributions(df)
+        unique_ids_size = contributions_data['ContributionID'].value_counts(dropna=True).size
+        ids_size = contributions_data['ContributionID'].values.size
+        self.assertEqual(ids_size, unique_ids_size)
 
     def test_contributions_columns_match(self):
-        pass
+        df = csvops.read_file_without_check(THIS_DIR + "\\testdata\\X1050_Giving.csv")
+        contributions_data = self.fb.build_contributions(df)
+        npt.assert_array_equal(contributions_data.columns.values, TargetCSVType.CONTRIBUTIONS.columns)
 
     # Shared Data Tests
     def test_batch_shared_data_contains_correct_number_of_batches(self):
         df = csvops.read_file_without_check(THIS_DIR + "\\testdata\\X1050_Giving.csv")
         self.fb.map(df, None)
-        ids = self.fb.batch_data['Id']
-        unique_values = ids.value_counts(dropna=True)
-        unique_size = unique_values.size
+        unique_size = self.fb.batch_data['Id'].value_counts(dropna=True).size
         self.assertEqual(unique_size, 4)
 
     def test_batch_shared_data_columns_are_all_populated(self):
@@ -87,7 +109,7 @@ class FinancialBuilderTests(unittest.TestCase):
         self.fb.map(df, None)
         batch_date_is_date = self.fb.batch_data['Batch_Date'].dtype == Timestamp
         batch_id_is_int = self.fb.batch_data['Id'].dtype == np.int64 or self.fb.batch_data['Id'].dtype == int
-        types_correct =  batch_date_is_date and batch_id_is_int
+        types_correct = batch_date_is_date and batch_id_is_int
         self.assertTrue(types_correct)
 
 
