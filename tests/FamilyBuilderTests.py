@@ -195,7 +195,7 @@ class FamilyBuilderTests(unittest.TestCase):
     def setUp(self):
         self.family_builder = FamilyBuilder.FamilyBuilder.Instance()
         self.data = pd.DataFrame([self.fake_spouse_individual_household, self.fake_head_individual_household],
-                            columns=SourceCSVType.INDIVIDUAL_HOUSEHOLD.columns)
+                                 columns=SourceCSVType.INDIVIDUAL_HOUSEHOLD.columns)
 
     def test_clean_up_state(self):
         test_states = ('tx',
@@ -257,7 +257,7 @@ class FamilyBuilderTests(unittest.TestCase):
                        'Missouri',
                        'AK'
                        )
-        states = pd.Series(test_states).map( self.family_builder.clean_up_state)
+        states = pd.Series(test_states).map(self.family_builder.clean_up_state)
         correct_states = pd.Series(('TX',
                                     'LA',
                                     'TN',
@@ -507,7 +507,7 @@ class FamilyBuilderTests(unittest.TestCase):
                         '',
                         ''
                         )
-        test_zips = pd.Series(zips).map( self.family_builder.clean_up_zip)
+        test_zips = pd.Series(zips).map(self.family_builder.clean_up_zip)
         npt.assert_array_equal(correct_zips, test_zips)
 
     def test_check_build_family_frame_columns(self):

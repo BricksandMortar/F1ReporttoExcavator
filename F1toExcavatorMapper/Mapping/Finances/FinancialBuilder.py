@@ -43,6 +43,7 @@ class FinancialBuilder:
         id_values = pd.factorize(unique_batches['ConcatId'])[0]
         unique_batches['Id'] = pd.Series(id_values)
         unique_batches = unique_batches.dropna()
+        unique_batches['Batch_Name'] = unique_batches['Batch_Name'].apply(str)
         self.batch_data = unique_batches.drop_duplicates()
         pass
         # # Rename columns to match Excavator naming

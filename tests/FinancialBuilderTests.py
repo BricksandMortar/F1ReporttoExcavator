@@ -1,8 +1,11 @@
 import unittest
 import os
+
+import numpy as np
+from pandas import DatetimeIndex, Timestamp
+
 import F1toExcavatorMapper.Utils.CSVOperations as csvops
 from F1toExcavatorMapper.Mapping.Finances.FinancialBuilder import FinancialBuilder
-from F1toExcavatorMapper.Mapping.SourceCSVType import SourceCSVType
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -75,10 +78,18 @@ class FinancialBuilderTests(unittest.TestCase):
         self.assertEqual(unique_size, 4)
 
     def test_batch_shared_data_columns_are_all_populated(self):
-        pass
+        df = csvops.read_file_without_check(THIS_DIR + "\\testdata\\X1050_Giving.csv")
+        self.fb.map(df, None)
+        self.assertFalse(self.fb.batch_data.isnull().values.any())
 
     def test_batch_shared_data_columns_are_correct_types(self):
-        pass
+        df = csvops.read_file_without_check(THIS_DIR + "\\testdata\\X1050_Giving.csv")
+        self.fb.map(df, None)
+        batch_date_is_date = self.fb.batch_data['Batch_Date'].dtype == Timestamp
+        batch_id_is_int = self.fb.batch_data['Id'].dtype == np.int64 or self.fb.batch_data['Id'].dtype == int
+        types_correct =  batch_date_is_date and batch_id_is_int
+        self.assertTrue(types_correct)
+
 
 if __name__ == '__main__':
     unittest.main()
