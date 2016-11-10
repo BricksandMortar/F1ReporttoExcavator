@@ -97,7 +97,10 @@ class FinancialBuilder:
     def get_check_number(row):
         contribution_type = row['ContributionTypeName']
         if contribution_type == 'Check':
-            return row['Reference']
+            reference = row['Reference']
+            if reference != '':
+                return int(reference)
+            return 0
         return ''
 
     @staticmethod
