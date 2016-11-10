@@ -3,6 +3,7 @@ from decimal import Decimal
 from re import sub
 
 import pandas as pd
+import numpy as np
 
 from F1toExcavatorMapper.Mapping.TargetCSVType import TargetCSVType
 from F1toExcavatorMapper.Utils.Singleton import Singleton
@@ -59,13 +60,13 @@ class FinancialBuilder:
         contributions_data['StatedValue'] = contributions_data.apply(self.get_stated_value, axis=1)
 
         # Cleanup data
-        contributions_data = contributions_data.dropna(subset=['ContributionID', 'IndividualID', 'ContributionBatchID', 'FundName', 'Amount'])
+        contributions_data = contributions_data.dropna(
+            subset=['ContributionID', 'IndividualID', 'ContributionBatchID', 'Amount'])
 
         # Set correct types
         contributions_data['ContributionID'] = contributions_data['ContributionID'].astype(int)
         contributions_data['IndividualID'] = contributions_data['IndividualID'].astype(int)
         contributions_data['ContributionBatchID'] = contributions_data['ContributionBatchID'].astype(int)
-        contributions_data['CheckNumber'] = contributions_data['CheckNumber'].astype(int)
         contributions_data['Amount'] = contributions_data['Amount'].astype(float)
         contributions_data['StatedValue'] = contributions_data['StatedValue'].astype(float)
 
@@ -103,7 +104,7 @@ class FinancialBuilder:
             if reference != '':
                 return int(reference)
             return 0
-        return ''
+        return np.nan
 
     @staticmethod
     def get_stated_value(row):
