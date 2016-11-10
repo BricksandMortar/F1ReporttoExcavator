@@ -15,49 +15,25 @@ class FinancialBuilder:
 
     def map(self, data, source_type):
         if self.batch_data is not None:
-            self.build_batches(data)
+            return self.build_batches(data)
         else:
-            self.build_contributions(data)
+            return self.build_contributions(data)
 
     def build_batches(self, data):
-        # data['start_date'] = pd.to_datetime(data['start_date'])
-        # # Convert to Int
-        # attribute_data['individual_id_1'] = attribute_data['individual_id_1'].astype(int)
-        # self.individual_frame['PersonId'] = self.individual_frame['PersonId'].astype(int)
-        # # Remove duplicates and take the most recent
-        # attribute_data = attribute_data.groupby(['individual_id_1', 'attribute_name']).max()['start_date'].reset_index()
-        # # Pivot to get columns of attribute names with values below
-        # attribute_data = attribute_data.pivot(index='individual_id_1', columns='attribute_name', values='start_date')
-        # # Change index to PersonId so we can concat
-        # attribute_data.index.rename('PersonId', True)
-        # # Result is attributes appended to the existing Individual_Id data
-        # self.individual_frame = self.individual_frame.join(attribute_data, on='PersonId')
-        # return self.batch_data
-        pass
+        from F1toExcavatorMapper.Mapping.TargetCSVType import TargetCSVType
+        self.batch_data = self.batch_data.rename(columns={'Id': 'BatchID', 'Batch_Name': 'BatchName', 'Batch_Date':'BatchDate', 'Batch_Entered':'BatchAmount'})
+        self.batch_data = self.batch_data[list(TargetCSVType.BATCH.columns)]
+        return self.batch_data
 
     def build_contributions(self, data):
+
+        self.build_shared_batch_data(data)
+
         # Select the subset of columns needed for mapping
         data = data.loc[:,
                ['Contributor_ID', 'Fund', 'SubFund_Code', 'Received_Date', 'Reference', 'Memo',
                 'Type', 'Amount', 'True_Value', 'Transaction_ID', 'Batch_Entered', 'Batch_Name',
                 'Batch_Date']]
-
-        # Create shared batch data
-        unique_batches = data.copy()
-        # Get a concat id
-        unique_batches['ConcatId'] = unique_batches['Batch_Date'].map(str) + unique_batches['Batch_Name']
-        unique_batches = unique_batches[['Batch_Name', 'Batch_Date', 'ConcatId']]
-        # Generate ids
-        id_values = pd.factorize(unique_batches['ConcatId'])[0]
-        # Get ids starting at 1
-        id_values += 1
-        unique_batches['Id'] = pd.Series(id_values)
-        unique_batches = unique_batches.dropna()
-        unique_batches['Batch_Name'] = unique_batches['Batch_Name'].apply(str)
-        unique_batches['Id'] = unique_batches['Id'].apply(int)
-        self.batch_data = unique_batches.drop_duplicates()
-        # Generate a dict to map more easily from
-        self.batch_data_dict = pd.Series(unique_batches.Id.values, index=unique_batches.ConcatId).to_dict()
 
         # Rename columns to Excavator naming
         contributions_data = data.rename(columns={'Contributor_ID': 'IndividualID', 'Fund': 'FundName',
@@ -71,7 +47,7 @@ class FinancialBuilder:
                 'ContributionBatchID'))])
 
         # Get ContributionBatchId from shared batch id
-        contributions_data['ConcatId'] = contributions_data['Batch_Date'].map(str) + unique_batches['Batch_Name']
+        contributions_data['ConcatId'] = contributions_data['Batch_Date'].map(str) + self.batch_data['Batch_Name']
         contributions_data['ContributionBatchID'] = contributions_data['ConcatId'].map(self.batch_data_dict)
 
         # Map complex columns
@@ -82,6 +58,7 @@ class FinancialBuilder:
 
         # Cleanup data
         contributions_data = contributions_data.dropna(subset=['ContributionID', 'IndividualID', 'ContributionBatchID', 'FundName', 'Amount'])
+
         # Set correct types
         contributions_data['ContributionID'] = contributions_data['ContributionID'].astype(int)
         contributions_data['IndividualID'] = contributions_data['IndividualID'].astype(int)
@@ -90,10 +67,28 @@ class FinancialBuilder:
         contributions_data['Amount'] = contributions_data['Amount'].astype(float)
         contributions_data['StatedValue'] = contributions_data['StatedValue'].astype(float)
 
+        # Ensure the columns are in the correct order
         from F1toExcavatorMapper.Mapping.TargetCSVType import TargetCSVType
         contributions_data = contributions_data[list(TargetCSVType.CONTRIBUTIONS.columns)]
-        print(contributions_data)
         return contributions_data
+
+    def build_shared_batch_data(self, data):
+        # Create shared batch data
+        unique_batches = data.copy()
+        # Get a concat id
+        unique_batches['ConcatId'] = unique_batches['Batch_Date'].map(str) + unique_batches['Batch_Name']
+        unique_batches = unique_batches[['Batch_Name', 'Batch_Date', 'ConcatId', 'Batch_Entered']]
+        # Generate ids
+        id_values = pd.factorize(unique_batches['ConcatId'])[0]
+        # Get ids starting at 1
+        id_values += 1
+        unique_batches['Id'] = pd.Series(id_values)
+        unique_batches = unique_batches.dropna()
+        unique_batches['Batch_Name'] = unique_batches['Batch_Name'].apply(str)
+        unique_batches['Id'] = unique_batches['Id'].apply(int)
+        self.batch_data = unique_batches.drop_duplicates()
+        # Generate a dict to map more easily from
+        self.batch_data_dict = pd.Series(unique_batches.Id.values, index=unique_batches.ConcatId).to_dict()
 
     @staticmethod
     def strip_amount(value):

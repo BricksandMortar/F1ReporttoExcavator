@@ -55,24 +55,24 @@ class TargetCSVType(Enum):
                            'SecondaryZip',
                            'SecondaryCountry'), FamilyBuilder.Instance)
 
-    BATCH = ('BatchId', ('BatchId', 'BatchName', 'BatchName', 'BatchDate', 'Batch'),
-             FinancialBuilder.FinancialBuilder.Instance())
+    BATCH = ('BatchID', ('BatchID', 'BatchName', 'BatchDate', 'BatchAmount'),
+             FinancialBuilder.FinancialBuilder.Instance)
 
     CONTRIBUTIONS = ('ContributionID', ('IndividualID',
-                                         'FundName',
-                                         'SubFundName',
-                                         'FundGLAccount',
-                                         'SubFundGLAccount',
-                                         'SubFundIsActive',
-                                         'ReceivedDate',
-                                         'CheckNumber',
-                                         'Memo',
-                                         'ContributionTypeName',
-                                         'Amount',
-                                         'StatedValue',
-                                         'ContributionID',
-                                         'ContributionBatchID'
-                                         ), FinancialBuilder.FinancialBuilder.Instance)
+                                        'FundName',
+                                        'SubFundName',
+                                        'FundGLAccount',
+                                        'SubFundGLAccount',
+                                        'SubFundIsActive',
+                                        'ReceivedDate',
+                                        'CheckNumber',
+                                        'Memo',
+                                        'ContributionTypeName',
+                                        'Amount',
+                                        'StatedValue',
+                                        'ContributionID',
+                                        'ContributionBatchID'
+                                        ), FinancialBuilder.FinancialBuilder.Instance)
 
     def get_builder(self):
         return self.builder()
