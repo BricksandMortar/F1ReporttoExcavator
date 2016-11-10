@@ -46,10 +46,10 @@ class FinancialBuilder:
         contributions_data = pd.concat(
             [contributions_data, pd.DataFrame(columns=(
                 'SubFundIsActive', 'CheckNumber', 'StatedValue', 'FundGLAccount', 'SubFundGLAccount',
-                'ContributionBatchID'))])
+                'ContributionBatchID', 'ConcatId'))])
 
         # Get ContributionBatchId from shared batch id
-        contributions_data['ConcatId'] = contributions_data['Batch_Date'].map(str) + self.batch_data['Batch_Name']
+        contributions_data['ConcatId'] = contributions_data.apply(self.get_concat_id, axis=1)
 
         # Map complex columns
         contributions_data['ContributionBatchID'] = contributions_data.apply(self.get_batch_number, axis=1)
@@ -112,6 +112,10 @@ class FinancialBuilder:
         if true_value is None or true_value == '' or math.isnan(true_value):
             return Decimal(amount)
         return Decimal(true_value)
+
+    @staticmethod
+    def get_concat_id(row):
+        return row['Batch_Date'] + row['Batch_Name']
 
     def get_batch_number(self, row):
         concat_id = row['ConcatId']
