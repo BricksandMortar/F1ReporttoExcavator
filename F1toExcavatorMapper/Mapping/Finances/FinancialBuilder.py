@@ -16,14 +16,16 @@ class FinancialBuilder:
 
     def map(self, data, source_type):
         if self.batch_data is not None:
-            return self.build_batches(data)
+            return self.build_batches()
         else:
             return self.build_contributions(data)
 
-    def build_batches(self, data):
-        self.batch_data = self.batch_data.rename(columns={'Id': 'BatchID', 'Batch_Name': 'BatchName', 'Batch_Date':'BatchDate', 'Batch_Entered':'BatchAmount'})
-        self.batch_data = self.batch_data[list(TargetCSVType.BATCH.columns)]
-        return self.batch_data
+    def build_batches(self):
+        batch_data = self.batch_data.copy()
+        batch_data = batch_data.rename(columns={'Id': 'BatchID', 'Batch_Name': 'BatchName', 'Batch_Date': 'BatchDate',
+                                                'Batch_Entered': 'BatchAmount'})
+        batch_data = batch_data[list(TargetCSVType.BATCH.columns)]
+        return batch_data
 
     def build_contributions(self, data):
 
