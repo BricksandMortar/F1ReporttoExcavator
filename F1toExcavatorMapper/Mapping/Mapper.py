@@ -1,5 +1,7 @@
 import os
 import pandas as pd
+
+from F1toExcavatorMapper.Mapping import BuilderFactory
 from F1toExcavatorMapper.Mapping.Mode import Mode
 
 from F1toExcavatorMapper.Exception.MappingFileNotFound import MappingFileNotFound
@@ -24,7 +26,7 @@ def run(source_file_path, target_file_type: TargetCSVType, source_type: SourceCS
     mode = source_type.mode
     set_up(source_file_path, target_file_type, mode)
     data = CSVOperations.read_file_without_check(source_file_path)
-    builder = target_file_type.builder()
+    builder = BuilderFactory.get_builder(target_file_type)
     output_data = builder.map(data, source_type)
 
     target_file_path = get_target_file_path(target_file_type, source_file_path)

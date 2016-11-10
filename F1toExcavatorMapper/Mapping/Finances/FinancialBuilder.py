@@ -1,9 +1,10 @@
 import math
+from decimal import Decimal
 from re import sub
 
 import pandas as pd
-from decimal import Decimal
 
+from F1toExcavatorMapper.Mapping.TargetCSVType import TargetCSVType
 from F1toExcavatorMapper.Utils.Singleton import Singleton
 
 
@@ -20,7 +21,6 @@ class FinancialBuilder:
             return self.build_contributions(data)
 
     def build_batches(self, data):
-        from F1toExcavatorMapper.Mapping.TargetCSVType import TargetCSVType
         self.batch_data = self.batch_data.rename(columns={'Id': 'BatchID', 'Batch_Name': 'BatchName', 'Batch_Date':'BatchDate', 'Batch_Entered':'BatchAmount'})
         self.batch_data = self.batch_data[list(TargetCSVType.BATCH.columns)]
         return self.batch_data
@@ -68,7 +68,6 @@ class FinancialBuilder:
         contributions_data['StatedValue'] = contributions_data['StatedValue'].astype(float)
 
         # Ensure the columns are in the correct order
-        from F1toExcavatorMapper.Mapping.TargetCSVType import TargetCSVType
         contributions_data = contributions_data[list(TargetCSVType.CONTRIBUTIONS.columns)]
         return contributions_data
 

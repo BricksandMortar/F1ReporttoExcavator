@@ -3,17 +3,18 @@ import re
 import pandas as pd
 
 from F1toExcavatorMapper.Utils.Singleton import Singleton
+from F1toExcavatorMapper.Mapping.SourceCSVType import SourceCSVType
+from F1toExcavatorMapper.Mapping.TargetCSVType import TargetCSVType
 
 regex = re.compile('[^a-zA-Z]')
 
+
 @Singleton
 class IndividualBuilder:
-
     def __init__(self):
         self.individual_frame = None
 
     def map(self, data, source_type):
-        from F1toExcavatorMapper.Mapping.SourceCSVType import SourceCSVType
         if source_type == SourceCSVType.ATTRIBUTES:
             return self.add_attributes_to_frame(data)
         else:
@@ -42,7 +43,6 @@ class IndividualBuilder:
 
     def build_individual_core_frame(self, data):
 
-        from F1toExcavatorMapper.Mapping.TargetCSVType import TargetCSVType
         # Select the subset of columns needed for mapping
         individual_frame = data.loc[:,
                            ['Household_Id', 'Household_Name', 'First_Record', 'Individual_ID', 'First_Name', 'Goes_By',

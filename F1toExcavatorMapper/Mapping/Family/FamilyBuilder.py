@@ -3,6 +3,7 @@ import re
 import pandas as pd
 
 from F1toExcavatorMapper.Utils.Singleton import Singleton
+from F1toExcavatorMapper.Mapping.TargetCSVType import TargetCSVType
 
 regex = re.compile('[^a-zA-Z]')
 
@@ -12,7 +13,6 @@ class FamilyBuilder:
 
     def map(self, data, source_type):
         # Defer import to prevent circular reference
-        from F1toExcavatorMapper.Mapping.TargetCSVType import TargetCSVType
 
         # See columns in IndividualBuilder
         family_frame = data.loc[:, ['Household_Id', 'Household_Name', 'Street_Address', 'City', 'State_Province',

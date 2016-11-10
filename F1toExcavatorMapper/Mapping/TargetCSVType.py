@@ -1,9 +1,5 @@
 from enum import Enum
 
-from F1toExcavatorMapper.Mapping.Family.FamilyBuilder import FamilyBuilder
-from F1toExcavatorMapper.Mapping.Finances import FinancialBuilder
-from F1toExcavatorMapper.Mapping.Individual.IndividualBuilder import IndividualBuilder
-
 
 class TargetCSVType(Enum):
     INDIVIDUAL = ("PersonId", ('FamilyId',
@@ -36,7 +32,7 @@ class TargetCSVType(Enum):
                                'GeneralNote',
                                'MedicalNote',
                                'SecurityNote',
-                               ), IndividualBuilder.Instance)
+                               ))
 
     FAMILY = ('FamilyId', ('FamilyId',
                            'FamilyName',
@@ -53,10 +49,9 @@ class TargetCSVType(Enum):
                            'SecondaryCity',
                            'SecondaryState',
                            'SecondaryZip',
-                           'SecondaryCountry'), FamilyBuilder.Instance)
+                           'SecondaryCountry'))
 
-    BATCH = ('BatchID', ('BatchID', 'BatchName', 'BatchDate', 'BatchAmount'),
-             FinancialBuilder.FinancialBuilder.Instance)
+    BATCH = ('BatchID', ('BatchID', 'BatchName', 'BatchDate', 'BatchAmount'))
 
     CONTRIBUTIONS = ('ContributionID', ('IndividualID',
                                         'FundName',
@@ -72,12 +67,11 @@ class TargetCSVType(Enum):
                                         'StatedValue',
                                         'ContributionID',
                                         'ContributionBatchID'
-                                        ), FinancialBuilder.FinancialBuilder.Instance)
+                                        ))
 
     def get_builder(self):
         return self.builder()
 
-    def __init__(self, primary_key, columns, builder):
+    def __init__(self, primary_key, columns):
         self.primary_key = primary_key
         self.columns = columns
-        self.builder = builder
