@@ -25,6 +25,8 @@ class FinancialBuilder:
         batch_data = self.batch_data.copy()
         batch_data = batch_data.rename(columns={'Id': 'BatchID', 'Batch_Name': 'BatchName', 'Batch_Date': 'BatchDate',
                                                 'Batch_Entered': 'BatchAmount'})
+        batch_data['BatchDate'] = pd.to_datetime(batch_data['BatchDate'])
+        batch_data['BatchDate'] = batch_data.BatchDate.dt.strftime('%m/%d/%Y')
         batch_data = batch_data[list(TargetCSVType.BATCH.columns)]
         return batch_data
 
@@ -69,9 +71,11 @@ class FinancialBuilder:
         contributions_data['ContributionBatchID'] = contributions_data['ContributionBatchID'].astype(int)
         contributions_data['Amount'] = contributions_data['Amount'].astype(float)
         contributions_data['StatedValue'] = contributions_data['StatedValue'].astype(float)
+        contributions_data['ReceivedDate'] = pd.to_datetime(contributions_data['ReceivedDate'])
+        contributions_data['ReceivedDate'] = contributions_data.ReceivedDate.dt.strftime('%m/%d/%Y')
 
         # Ensure the columns are in the correct order
-        contributions_data = contributions_data[list(TargetCSVType.CONTRIBUTIONS.columns)]
+        contributions_data = contributions_data[list(TargetCSVType.CONTRIBUTION.columns)]
         return contributions_data
 
     def build_shared_batch_data(self, data):
