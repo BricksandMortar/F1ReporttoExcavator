@@ -50,7 +50,7 @@ class FinancialBuilder:
         contributions_data['ConcatId'] = contributions_data['Batch_Date'].map(str) + self.batch_data['Batch_Name']
 
         # Map complex columns
-        contributions_data['ContributionBatchID'] = contributions_data['ConcatId'].apply(self.get_batch_number, axis=1)
+        contributions_data['ContributionBatchID'] = contributions_data.apply(self.get_batch_number, axis=1)
         contributions_data['SubFundIsActive'] = contributions_data['SubFundIsActive'].fillna('Yes')
         contributions_data['Amount'] = contributions_data['Amount'].map(self.strip_amount)
         contributions_data['CheckNumber'] = contributions_data.apply(self.get_check_number, axis=1)
