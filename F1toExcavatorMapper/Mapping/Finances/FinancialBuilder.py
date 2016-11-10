@@ -48,9 +48,9 @@ class FinancialBuilder:
 
         # Get ContributionBatchId from shared batch id
         contributions_data['ConcatId'] = contributions_data['Batch_Date'].map(str) + self.batch_data['Batch_Name']
-        contributions_data['ContributionBatchID'] = contributions_data['ConcatId'].map(self.batch_data_dict)
 
         # Map complex columns
+        contributions_data['ContributionBatchID'] = contributions_data['ConcatId'].apply(self.get_batch_number, axis=1)
         contributions_data['SubFundIsActive'] = contributions_data['SubFundIsActive'].fillna('Yes')
         contributions_data['Amount'] = contributions_data['Amount'].map(self.strip_amount)
         contributions_data['CheckNumber'] = contributions_data.apply(self.get_check_number, axis=1)
@@ -110,3 +110,7 @@ class FinancialBuilder:
         if true_value is None or true_value == '' or math.isnan(true_value):
             return Decimal(amount)
         return Decimal(true_value)
+
+    def get_batch_number(self, row):
+        concat_id = row['ConcatId']
+        return self.batch_data_dict.get(concat_id)
