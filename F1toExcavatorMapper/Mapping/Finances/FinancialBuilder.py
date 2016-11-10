@@ -25,8 +25,8 @@ class FinancialBuilder:
         batch_data = self.batch_data.copy()
         batch_data = batch_data.rename(columns={'Id': 'BatchID', 'Batch_Name': 'BatchName', 'Batch_Date': 'BatchDate',
                                                 'Batch_Entered': 'BatchAmount'})
-        batch_data['BatchDate'] = pd.to_datetime(batch_data['BatchDate'])
-        batch_data['BatchDate'] = batch_data.BatchDate.dt.strftime('%m/%d/%Y')
+        batch_data['BatchDate'] = pd.to_datetime(batch_data['BatchDate'], errors='raise')
+        batch_data['BatchAmount'] = batch_data['BatchAmount'].map(self.strip_amount)
         batch_data = batch_data[list(TargetCSVType.BATCH.columns)]
         return batch_data
 
@@ -71,8 +71,7 @@ class FinancialBuilder:
         contributions_data['ContributionBatchID'] = contributions_data['ContributionBatchID'].astype(int)
         contributions_data['Amount'] = contributions_data['Amount'].astype(float)
         contributions_data['StatedValue'] = contributions_data['StatedValue'].astype(float)
-        contributions_data['ReceivedDate'] = pd.to_datetime(contributions_data['ReceivedDate'])
-        contributions_data['ReceivedDate'] = contributions_data.ReceivedDate.dt.strftime('%m/%d/%Y')
+        contributions_data['ReceivedDate'] = pd.to_datetime(contributions_data['ReceivedDate'], errors='raise')
 
         # Ensure the columns are in the correct order
         contributions_data = contributions_data[list(TargetCSVType.CONTRIBUTION.columns)]
@@ -82,7 +81,8 @@ class FinancialBuilder:
         # Create shared batch data
         unique_batches = data.copy()
         # Get a concat id
-        unique_batches['ConcatId'] = unique_batches['Batch_Date'].map(str) + unique_batches['Batch_Name']
+        unique_batches['ConcatId'] = unique_batches['Batch_Date'].map(str) + unique_batches['Batch_Name'] + \
+                                     unique_batches['Batch_Entered']
         unique_batches = unique_batches[['Batch_Name', 'Batch_Date', 'ConcatId', 'Batch_Entered']]
         # Generate ids
         id_values = pd.factorize(unique_batches['ConcatId'])[0]
@@ -120,7 +120,7 @@ class FinancialBuilder:
 
     @staticmethod
     def get_concat_id(row):
-        return row['Batch_Date'] + row['Batch_Name']
+        return row['Batch_Date'] + row['Batch_Name'] + row['Batch_Entered']
 
     def get_batch_number(self, row):
         concat_id = row['ConcatId']

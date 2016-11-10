@@ -47,12 +47,12 @@ def delete_file(file_path):
 
 def __write_file_with_headers(file_path, data_frame):
     with open(file_path, 'a', newline='') as file:
-        data_frame.to_csv(file, index=False)
+        data_frame.to_csv(file, index=False, date_format='%Y-%m-%d %H:%M:%S')
 
 
 def write_file(file_path, data_frame):
     with open(file_path, 'a', newline='') as file:
-        data_frame.to_csv(file, header=False, index=False)
+        data_frame.to_csv(file, date_format='%Y-%m-%d', header=False, index=False )
 
 
 def read_file(file_path, file_type):
