@@ -68,7 +68,7 @@ class FinancialBuilderTests(unittest.TestCase):
     def test_contributions_amount_equals_contribution_amount(self):
         df = csvops.read_file_without_check(THIS_DIR + "/testdata/X1050_Giving.csv")
         contributions_data = self.fb.build_contributions(df)
-        self.assertEqual(contributions_data['Amount'].sum(), 5415)
+        self.assertEqual(contributions_data['Amount'].sum(), 5885)
 
     def test_all_contribution_batch_ids_have_batches(self):
         df = csvops.read_file_without_check(THIS_DIR + "/testdata/X1050_Giving.csv")
