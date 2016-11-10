@@ -95,6 +95,11 @@ class FinancialBuilderTests(unittest.TestCase):
         contributions_data = self.fb.build_contributions(df)
         npt.assert_array_equal(contributions_data.columns.values, TargetCSVType.CONTRIBUTIONS.columns)
 
+    def test_number_of_contributions(self):
+        df = csvops.read_file_without_check(THIS_DIR + "/testdata/X1050_Giving.csv")
+        contributions_data = self.fb.build_contributions(df)
+        self.assertEquals(len(contributions_data.index), 34)
+
     # Shared Data Tests
     def test_batch_shared_data_contains_correct_number_of_batches(self):
         df = csvops.read_file_without_check(THIS_DIR + "/testdata/X1050_Giving.csv")
