@@ -48,7 +48,7 @@ class FinancialBuilder:
         # Add blank columns that are required
         contributions_data = pd.concat(
             [contributions_data, pd.DataFrame(columns=(
-                'SubFundIsActive', 'CheckNumber', 'StatedValue', 'FundGLAccount', 'SubFundGLAccount',
+                'FundIsActive', 'SubFundIsActive', 'CheckNumber', 'StatedValue', 'FundGLAccount', 'SubFundGLAccount',
                 'ContributionBatchID', 'ConcatId'))])
 
         # Get ContributionBatchId from shared batch id
@@ -56,6 +56,7 @@ class FinancialBuilder:
 
         # Map complex columns
         contributions_data['ContributionBatchID'] = contributions_data.apply(self.get_batch_number, axis=1)
+        contributions_data['FundIsActive'] = contributions_data['FundIsActive'].fillna('Yes')
         contributions_data['SubFundIsActive'] = contributions_data['SubFundIsActive'].fillna('Yes')
         contributions_data['Amount'] = contributions_data['Amount'].map(self.strip_amount)
         contributions_data['CheckNumber'] = contributions_data.apply(self.get_check_number, axis=1)
