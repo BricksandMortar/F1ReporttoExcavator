@@ -9,5 +9,5 @@ def get_builder(target_type: TargetCSVType):
         return IndividualBuilder.Instance()
     elif target_type == TargetCSVType.FAMILY:
         return FamilyBuilder.Instance()
-    elif target_type == TargetCSVType.CONTRIBUTIONS or target_type == TargetCSVType.BATCH:
+    elif target_type == TargetCSVType.CONTRIBUTION or target_type == TargetCSVType.BATCH:
         return FinancialBuilder.Instance()

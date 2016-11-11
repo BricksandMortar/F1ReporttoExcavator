@@ -180,7 +180,7 @@ class SourceCSVType(Enum):
                'Amount',
                'True_Value',
                'Liquidation_Costs',
-               'Memo'), [TargetCSVType.CONTRIBUTIONS, TargetCSVType.BATCH], Mode.CREATE)
+               'Memo'), [TargetCSVType.CONTRIBUTION, TargetCSVType.BATCH], Mode.CREATE)
 
     def __init__(self, columns, target_types, mode):
         self.columns = columns

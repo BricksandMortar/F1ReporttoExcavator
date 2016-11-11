@@ -104,7 +104,7 @@ class FinancialBuilderTests(unittest.TestCase):
     def test_contributions_columns_match(self):
         df = csvops.read_file_without_check(THIS_DIR + "/testdata/X1050_Giving.csv")
         contributions_data = self.fb.build_contributions(df)
-        npt.assert_array_equal(contributions_data.columns.values, TargetCSVType.CONTRIBUTIONS.columns)
+        npt.assert_array_equal(contributions_data.columns.values, TargetCSVType.CONTRIBUTION.columns)
 
     def test_number_of_contributions(self):
         df = csvops.read_file_without_check(THIS_DIR + "/testdata/X1050_Giving.csv")
