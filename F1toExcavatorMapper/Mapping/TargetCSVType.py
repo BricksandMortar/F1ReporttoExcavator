@@ -53,21 +53,22 @@ class TargetCSVType(Enum):
 
     BATCH = ('BatchID', ('BatchID', 'BatchName', 'BatchDate', 'BatchAmount'))
 
-    CONTRIBUTIONS = ('ContributionID', ('IndividualID',
+    CONTRIBUTION = ('ContributionID', ('IndividualID',
                                         'FundName',
                                         'SubFundName',
                                         'FundGLAccount',
                                         'SubFundGLAccount',
+                                       'FundIsActive',
                                         'SubFundIsActive',
                                         'ReceivedDate',
                                         'CheckNumber',
                                         'Memo',
-                                        'ContributionTypeName',
-                                        'Amount',
-                                        'StatedValue',
-                                        'ContributionID',
-                                        'ContributionBatchID'
-                                        ))
+                                       'ContributionTypeName',
+                                       'Amount',
+                                       'StatedValue',
+                                       'ContributionID',
+                                       'ContributionBatchID'
+                                       ))
 
     def get_builder(self):
         return self.builder()
