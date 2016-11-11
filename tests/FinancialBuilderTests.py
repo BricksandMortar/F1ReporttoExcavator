@@ -1,9 +1,11 @@
+import decimal
 import unittest
 import os
 
 import numpy as np
 import numpy.testing as npt
 import pandas as pd
+import timestamp as timestamp
 from pandas import Timestamp
 
 import F1toExcavatorMapper.Utils.CSVOperations as csvops
@@ -32,8 +34,17 @@ class FinancialBuilderTests(unittest.TestCase):
     def test_batches_all_have_amounts(self):
         pass
 
+    def test_batch_dates_are_all_timestamps(self):
+        df = csvops.read_file_without_check(THIS_DIR + "/testdata/X1050_Giving.csv")
+        self.fb.map(df, None)
+        batch_data = self.fb.map(df, None)
+        self.assertTrue(batch_data['BatchDate'].dtype == Timestamp)
+
     def test_batch_amounts_are_all_decimal(self):
-        pass
+        df = csvops.read_file_without_check(THIS_DIR + "/testdata/X1050_Giving.csv")
+        self.fb.map(df, None)
+        batch_data = self.fb.map(df, None)
+        self.assertTrue(batch_data['BatchAmount'].dtype == decimal.Decimal)
 
     def test_batch_ids_are_all_unique(self):
         pass
