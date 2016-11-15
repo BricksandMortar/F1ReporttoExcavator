@@ -67,7 +67,8 @@ class TargetCSVType(Enum):
                                        'Amount',
                                        'StatedValue',
                                        'ContributionID',
-                                       'ContributionBatchID'
+                                       'ContributionBatchID',
+                                       'ContributorType'
                                        ))
 
     def get_builder(self):

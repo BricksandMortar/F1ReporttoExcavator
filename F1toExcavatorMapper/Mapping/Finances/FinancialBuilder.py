@@ -36,14 +36,14 @@ class FinancialBuilder:
 
         # Select the subset of columns needed for mapping
         data = data.loc[:,
-               ['Contributor_ID', 'Fund', 'SubFund_Code', 'Received_Date', 'Reference', 'Memo',
+               ['Contributor_ID', 'Contributor_Type', 'Fund', 'SubFund_Code', 'Received_Date', 'Reference', 'Memo',
                 'Type', 'Amount', 'True_Value', 'Transaction_ID', 'Batch_Entered', 'Batch_Name',
                 'Batch_Date']]
 
         # Rename columns to Excavator naming
         contributions_data = data.rename(columns={'Contributor_ID': 'IndividualID', 'Fund': 'FundName',
                                                   'SubFund_Code': 'SubFundName', 'Received_Date': 'ReceivedDate',
-                                                  'Type': 'ContributionTypeName', 'Transaction_ID': 'ContributionID'})
+                                                  'Type': 'ContributionTypeName', 'Transaction_ID': 'ContributionID', 'Contributor_Type': 'ContributorType'})
         # Add blank columns to be filled by data created with logic
         # Add blank columns that are required
         contributions_data = pd.concat(
