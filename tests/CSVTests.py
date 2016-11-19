@@ -1,6 +1,8 @@
 import os
 import unittest
 
+import datetime
+
 import F1toExcavatorMapper.Utils.CSVOperations as csvops
 from F1toExcavatorMapper.Mapping.SourceCSVType import SourceCSVType
 from F1toExcavatorMapper.Mapping.TargetCSVType import TargetCSVType
@@ -53,6 +55,18 @@ class CSVTests(unittest.TestCase):
     def test_read_individual_household_has_correct_columns(self):
         df = csvops.read_file_without_check(THIS_DIR+'/testdata/X9400_no_attributes.csv')
         npt.assert_array_equal(df.columns.values, SourceCSVType.INDIVIDUAL_HOUSEHOLD.columns)
+
+    def test_date_parse_mddyy(self):
+        correct_date = datetime.date(1957, 2, 23)
+        self.assertEqual(correct_date, csvops.parse_date("2/23/57"))
+
+    def test_date_parse_mmddyy(self):
+        correct_date = datetime.date(1957, 2, 23)
+        self.assertEqual(correct_date, csvops.parse_date("02/23/57"))
+
+    def test_date_parse_mmddyyyy(self):
+        correct_date = datetime.date(2001, 12, 31)
+        self.assertEqual(correct_date, csvops.parse_date("12/31/2001"))
 
     def tearDown(self):
         try:

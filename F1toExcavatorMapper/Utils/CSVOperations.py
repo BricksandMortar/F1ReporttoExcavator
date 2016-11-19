@@ -1,10 +1,14 @@
 import csv
 import os
 from pathlib import Path
+
+import datetime
 import pandas as pd
 
 from F1toExcavatorMapper.Exception.IncorrectHeaders import IncorrectHeaders
 from F1toExcavatorMapper.Mapping import TargetCSVType
+
+POSSIBLE_DATE_FORMATS = ['%m/%d/%Y', '%m/%d/%y']  # all the formats the date might be in
 
 
 def get_header_count(filename):
@@ -43,6 +47,18 @@ def delete_write(target_file_path, output_data):
 def delete_file(file_path):
     if check_file_exists(file_path):
         os.remove(file_path)
+
+
+def parse_date(value):
+    for date_format in POSSIBLE_DATE_FORMATS:
+        try:
+            date = datetime.datetime.strptime(value, date_format)  # try to get the date
+            if date.year > 2020:
+                return date.replace(year=date.year - 100).date()
+            else:
+                return date.date()
+        except ValueError:
+            pass  # if incorrect format, keep trying other formats
 
 
 def __write_file_with_headers(file_path, data_frame):
