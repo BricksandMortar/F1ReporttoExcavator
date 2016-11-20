@@ -1,6 +1,7 @@
 import re
 
 import pandas as pd
+import F1toExcavatorMapper.Utils.CSVOperations as csvops
 
 from F1toExcavatorMapper.Utils.Singleton import Singleton
 from F1toExcavatorMapper.Mapping.SourceCSVType import SourceCSVType
@@ -79,10 +80,13 @@ class IndividualBuilder:
         individual_frame['Email'] = individual_frame.apply(self.get_email, axis=1)
         individual_frame['IsEmailActive'] = individual_frame['Unsubscribed'].map(self.is_email_active)
         individual_frame['Allow Bulk Email?'] = individual_frame['IsEmailActive']
+        individual_frame['DateOfBirth'] = individual_frame['DateOfBirth'].map(csvops.parse_date)
+        individual_frame['CreatedDate'] = individual_frame['CreatedDate'].map(csvops.parse_date)
 
         # Ensure that IDs are ints not floats
         individual_frame['PersonId'] = individual_frame['PersonId'].astype(int)
         individual_frame['FamilyId'] = individual_frame['FamilyId'].astype(int)
+        individual_frame['DateOfBirth'] = pd.to_datetime(individual_frame['DateOfBirth'])
 
         # Reorder columns and select only the ones needed by Excavator
         individual_frame = individual_frame[list(TargetCSVType.INDIVIDUAL.columns)]

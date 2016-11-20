@@ -52,7 +52,7 @@ def delete_file(file_path):
 def parse_date(value):
     for date_format in POSSIBLE_DATE_FORMATS:
         try:
-            date = datetime.datetime.strptime(value, date_format)  # try to get the date
+            date = datetime.datetime.strptime(str(value), date_format)  # try to get the date
             if date.year > 2020:
                 return date.replace(year=date.year - 100).date()
             else:
@@ -63,7 +63,7 @@ def parse_date(value):
 
 def __write_file_with_headers(file_path, data_frame):
     with open(file_path, 'a', newline='') as file:
-        data_frame.to_csv(file, index=False, date_format='%Y-%m-%d %H:%M:%S')
+        data_frame.to_csv(file, index=False, date_format='%Y-%m-%d')
 
 
 def write_file(file_path, data_frame):
