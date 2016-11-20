@@ -28,6 +28,7 @@ class FinancialBuilder:
                                                 'Batch_Entered': 'BatchAmount'})
         batch_data['BatchDate'] = batch_data['BatchDate'].map(csvops.parse_date)
         batch_data['BatchAmount'] = batch_data['BatchAmount'].map(self.strip_amount)
+        batch_data['BatchID'] = batch_data['BatchID'].astype(int)
         batch_data = batch_data[list(TargetCSVType.BATCH.columns)]
         return batch_data
 

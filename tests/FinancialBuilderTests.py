@@ -20,19 +20,31 @@ class FinancialBuilderTests(unittest.TestCase):
         self.fb = FinancialBuilder.Instance()
 
     def test_number_of_batches_equals_number_of_group_by_batch_name_date(self):
-        pass
-
-    def test_batches_all_have_unique_ids(self):
-        pass
+        df = csvops.read_file_without_check(THIS_DIR + "/testdata/X1050_Giving.csv")
+        self.fb.map(df, None)
+        batch_data = self.fb.map(df, None)
+        ids_size = batch_data['BatchID'].values.size
+        # This seems weird but does work bizarrely
+        group_by_size = batch_data.groupby(['BatchName', 'BatchDate']).size().size
+        self.assertEqual(ids_size, group_by_size)
 
     def test_batches_ids_are_all_ints(self):
-        pass
+        df = csvops.read_file_without_check(THIS_DIR + "/testdata/X1050_Giving.csv")
+        self.fb.map(df, None)
+        batch_data = self.fb.map(df, None)
+        self.assertTrue(batch_data['BatchID'].dtype == int)
 
     def test_all_batches_have_names(self):
-        pass
+        df = csvops.read_file_without_check(THIS_DIR + "/testdata/X1050_Giving.csv")
+        self.fb.map(df, None)
+        batch_data = self.fb.map(df, None)
+        self.assertFalse(pd.isnull(batch_data['BatchName']).any())
 
     def test_batches_all_have_amounts(self):
-        pass
+        df = csvops.read_file_without_check(THIS_DIR + "/testdata/X1050_Giving.csv")
+        self.fb.map(df, None)
+        batch_data = self.fb.map(df, None)
+        self.assertFalse(pd.isnull(batch_data['BatchAmount']).any())
 
     def test_batch_dates_are_all_timestamps(self):
         df = csvops.read_file_without_check(THIS_DIR + "/testdata/X1050_Giving.csv")
@@ -47,7 +59,12 @@ class FinancialBuilderTests(unittest.TestCase):
         self.assertTrue(batch_data['BatchAmount'].dtype == decimal.Decimal)
 
     def test_batch_ids_are_all_unique(self):
-        pass
+        df = csvops.read_file_without_check(THIS_DIR + "/testdata/X1050_Giving.csv")
+        self.fb.map(df, None)
+        batch_data = self.fb.map(df, None)
+        unique_ids_size = batch_data['BatchID'].value_counts(dropna=True).size
+        ids_size = batch_data['BatchID'].values.size
+        self.assertEqual(ids_size, unique_ids_size)
 
     def test_sum_data_amounts_equal_sum_batch_amounts(self):
         pass
