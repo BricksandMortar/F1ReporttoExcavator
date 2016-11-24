@@ -148,6 +148,15 @@ class FinancialBuilderTests(unittest.TestCase):
         types_correct = batch_date_is_date and batch_id_is_int
         self.assertTrue(types_correct)
 
+    def test_number_of_shared_batch_data_equals_number_of_contributions_group_by_batch_name_date(self):
+        df = csvops.read_file_without_check(THIS_DIR + "/testdata/X1050_Giving.csv")
+        cloned_df = df.copy()
+        self.fb.map(df, None)
+        ids_size = self.fb.batch_data['Id'].values.size
+        # This seems weird but does work bizarrely
+        group_by_size = cloned_df.groupby(['Batch_Name', 'Batch_Date']).size().size
+        self.assertEqual(ids_size, group_by_size)
+
 
 if __name__ == '__main__':
     unittest.main()
