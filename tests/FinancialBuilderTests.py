@@ -96,7 +96,7 @@ class FinancialBuilderTests(unittest.TestCase):
     def test_contributions_amount_equals_contribution_amount(self):
         df = csvops.read_file_without_check(THIS_DIR + "/testdata/X1050_Giving.csv")
         contributions_data = self.fb.build_contributions(df)
-        self.assertEqual(contributions_data['Amount'].sum(), 5885)
+        self.assertEqual(contributions_data['Amount'].sum(), 6084.99)
 
     def test_all_contribution_batch_ids_have_batches(self):
         df = csvops.read_file_without_check(THIS_DIR + "/testdata/X1050_Giving.csv")
@@ -126,14 +126,14 @@ class FinancialBuilderTests(unittest.TestCase):
     def test_number_of_contributions(self):
         df = csvops.read_file_without_check(THIS_DIR + "/testdata/X1050_Giving.csv")
         contributions_data = self.fb.build_contributions(df)
-        self.assertEquals(len(contributions_data.index), 34)
+        self.assertEquals(len(contributions_data.index), 36)
 
     # Shared Data Tests
     def test_batch_shared_data_contains_correct_number_of_batches(self):
         df = csvops.read_file_without_check(THIS_DIR + "/testdata/X1050_Giving.csv")
         self.fb.map(df, None)
         unique_size = self.fb.batch_data['Id'].value_counts(dropna=True).size
-        self.assertEqual(unique_size, 4)
+        self.assertEqual(unique_size, 5)
 
     def test_batch_shared_data_columns_are_all_populated(self):
         df = csvops.read_file_without_check(THIS_DIR + "/testdata/X1050_Giving.csv")
@@ -151,6 +151,7 @@ class FinancialBuilderTests(unittest.TestCase):
     def test_number_of_shared_batch_data_equals_number_of_contributions_group_by_batch_name_date(self):
         df = csvops.read_file_without_check(THIS_DIR + "/testdata/X1050_Giving.csv")
         cloned_df = df.copy()
+        cloned_df = self.fb.fill_empty_batch_names(cloned_df)
         self.fb.map(df, None)
         ids_size = self.fb.batch_data['Id'].values.size
         # This seems weird but does work bizarrely

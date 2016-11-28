@@ -4,6 +4,7 @@ from re import sub
 
 import pandas as pd
 import numpy as np
+from datetime import date
 
 from F1toExcavatorMapper.Mapping.TargetCSVType import TargetCSVType
 from F1toExcavatorMapper.Utils.Singleton import Singleton
@@ -27,13 +28,14 @@ class FinancialBuilder:
         batch_data = batch_data.rename(columns={'Id': 'BatchID', 'Batch_Name': 'BatchName', 'Batch_Date': 'BatchDate',
                                                 'Batch_Entered': 'BatchAmount'})
         batch_data['BatchDate'] = batch_data['BatchDate'].map(csvops.parse_date)
-        batch_data['BatchAmount'] = batch_data['BatchAmount'].map(self.strip_amount)
+        batch_data['BatchAmount'] = batch_data['BatchAmount']
         batch_data['BatchID'] = batch_data['BatchID'].astype(int)
         batch_data = batch_data[list(TargetCSVType.BATCH.columns)]
         return batch_data
 
     def build_contributions(self, data):
-
+        # Ensure empty batches have a batch associated with them
+        data = self.fill_empty_batch_names(data)
         self.build_shared_batch_data(data)
 
         # Select the subset of columns needed for mapping
@@ -45,7 +47,8 @@ class FinancialBuilder:
         # Rename columns to Excavator naming
         contributions_data = data.rename(columns={'Contributor_ID': 'IndividualID', 'Fund': 'FundName',
                                                   'SubFund_Code': 'SubFundName', 'Received_Date': 'ReceivedDate',
-                                                  'Type': 'ContributionTypeName', 'Transaction_ID': 'ContributionID', 'Contributor_Type': 'ContributorType'})
+                                                  'Type': 'ContributionTypeName', 'Transaction_ID': 'ContributionID',
+                                                  'Contributor_Type': 'ContributorType'})
         # Add blank columns to be filled by data created with logic
         # Add blank columns that are required
         contributions_data = pd.concat(
@@ -60,7 +63,7 @@ class FinancialBuilder:
         contributions_data['ContributionBatchID'] = contributions_data.apply(self.get_batch_number, axis=1)
         contributions_data['FundIsActive'] = contributions_data['FundIsActive'].fillna('Yes')
         contributions_data['SubFundIsActive'] = contributions_data['SubFundIsActive'].fillna('Yes')
-        contributions_data['Amount'] = contributions_data['Amount'].map(self.strip_amount)
+        contributions_data['Amount'] = contributions_data['Amount']
         contributions_data['CheckNumber'] = contributions_data.apply(self.get_check_number, axis=1)
         contributions_data['StatedValue'] = contributions_data.apply(self.get_stated_value, axis=1)
 
@@ -85,7 +88,7 @@ class FinancialBuilder:
         unique_batches = data.copy()
         # Get a concat id
         unique_batches['ConcatId'] = unique_batches['Batch_Date'].map(str) + unique_batches['Batch_Name'] + \
-                                     unique_batches['Batch_Entered']
+            unique_batches['Batch_Entered'].map(str)
         unique_batches = unique_batches[['Batch_Name', 'Batch_Date', 'ConcatId', 'Batch_Entered']]
         # Generate ids
         id_values = pd.factorize(unique_batches['ConcatId'])[0]
@@ -98,6 +101,18 @@ class FinancialBuilder:
         self.batch_data = unique_batches.drop_duplicates()
         # Generate a dict to map more easily from
         self.batch_data_dict = pd.Series(unique_batches.Id.values, index=unique_batches.ConcatId).to_dict()
+
+    def fill_empty_batch_names(self, data):
+        today = date.today()
+        today_iso_format = today.strftime('%m/%d/%Y')
+        data['Batch_Date'] = data['Batch_Date'].fillna(today_iso_format)
+        data['Batch_Name'] = data['Batch_Name'].fillna(today_iso_format)
+        data['Amount'] = data['Amount'].map(self.strip_amount)
+        null_batch_entered = data[data['Batch_Entered'].isnull()]
+        null_batch_entered_amount = null_batch_entered['Amount']
+        nan_total = null_batch_entered_amount.sum()
+        data['Batch_Entered'] = data['Batch_Entered'].fillna(nan_total)
+        return data
 
     @staticmethod
     def strip_amount(value):
@@ -123,7 +138,7 @@ class FinancialBuilder:
 
     @staticmethod
     def get_concat_id(row):
-        return row['Batch_Date'] + row['Batch_Name'] + row['Batch_Entered']
+        return row['Batch_Date'] + row['Batch_Name'] + str(row['Batch_Entered'])
 
     def get_batch_number(self, row):
         concat_id = row['ConcatId']
