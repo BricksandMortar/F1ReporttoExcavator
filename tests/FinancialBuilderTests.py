@@ -151,7 +151,7 @@ class FinancialBuilderTests(unittest.TestCase):
     def test_number_of_shared_batch_data_equals_number_of_contributions_group_by_batch_name_date(self):
         df = csvops.read_file_without_check(THIS_DIR + "/testdata/X1050_Giving.csv")
         cloned_df = df.copy()
-        cloned_df = self.fb.fill_empty_batch_names(cloned_df)
+        cloned_df = self.fb.fill_missing_batch_data(cloned_df)
         self.fb.map(df, None)
         ids_size = self.fb.batch_data['Id'].values.size
         # This seems weird but does work bizarrely

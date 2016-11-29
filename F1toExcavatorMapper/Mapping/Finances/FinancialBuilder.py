@@ -35,7 +35,7 @@ class FinancialBuilder:
 
     def build_contributions(self, data):
         # Ensure empty batches have a batch associated with them
-        data = self.fill_empty_batch_names(data)
+        data = self.fill_missing_batch_data(data)
         self.build_shared_batch_data(data)
 
         # Select the subset of columns needed for mapping
@@ -102,7 +102,7 @@ class FinancialBuilder:
         # Generate a dict to map more easily from
         self.batch_data_dict = pd.Series(unique_batches.Id.values, index=unique_batches.ConcatId).to_dict()
 
-    def fill_empty_batch_names(self, data):
+    def fill_missing_batch_data(self, data):
         today = date.today()
         today_iso_format = today.strftime('%m/%d/%Y')
         data['Batch_Date'] = data['Batch_Date'].fillna(today_iso_format)
@@ -112,6 +112,7 @@ class FinancialBuilder:
         null_batch_entered_amount = null_batch_entered['Amount']
         nan_total = null_batch_entered_amount.sum()
         data['Batch_Entered'] = data['Batch_Entered'].fillna(nan_total)
+        data['Contributor_Id'] = data['Contributor_Id'].fillna('0')
         return data
 
     @staticmethod
