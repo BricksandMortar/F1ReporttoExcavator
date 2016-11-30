@@ -114,7 +114,7 @@ class FinancialBuilder:
         null_batch_entered_amount = null_batch_entered['Amount']
         nan_total = null_batch_entered_amount.sum()
         data['Batch_Entered'] = data['Batch_Entered'].fillna(nan_total)
-        data['Contributor_Id'] = data['Contributor_Id'].fillna('0')
+        data['Contributor_ID'] = data['Contributor_ID'].fillna('0')
         return data
 
     @staticmethod
