@@ -158,6 +158,12 @@ class FinancialBuilderTests(unittest.TestCase):
         group_by_size = cloned_df.groupby(['Batch_Name', 'Batch_Date']).size().size
         self.assertEqual(ids_size, group_by_size)
 
+    def test_strip_amount_negative(self):
+        self.assertEqual(-15.00, self.fb.strip_amount('-$15.00'))
+
+    def test_strip_amount_positive(self):
+        self.assertEqual(15.00, self.fb.strip_amount('$15.00'))
+
 
 if __name__ == '__main__':
     unittest.main()

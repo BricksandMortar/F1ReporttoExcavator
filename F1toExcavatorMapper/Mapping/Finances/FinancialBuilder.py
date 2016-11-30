@@ -34,6 +34,7 @@ class FinancialBuilder:
         return batch_data
 
     def build_contributions(self, data):
+        data = data[pd.notnull(data['Amount'])]
         # Ensure empty batches have a batch associated with them
         data = self.fill_missing_batch_data(data)
         self.build_shared_batch_data(data)
@@ -105,6 +106,7 @@ class FinancialBuilder:
     def fill_missing_batch_data(self, data):
         today = date.today()
         today_iso_format = today.strftime('%m/%d/%Y')
+        # Get rid of blank amounts
         data['Batch_Date'] = data['Batch_Date'].fillna(today_iso_format)
         data['Batch_Name'] = data['Batch_Name'].fillna(today_iso_format)
         data['Amount'] = data['Amount'].map(self.strip_amount)
@@ -117,7 +119,7 @@ class FinancialBuilder:
 
     @staticmethod
     def strip_amount(value):
-        return Decimal(sub(r'[^\d.]', '', value))
+        return Decimal(sub(r'[^\d.-]', '', value))
 
     @staticmethod
     def get_check_number(row):
