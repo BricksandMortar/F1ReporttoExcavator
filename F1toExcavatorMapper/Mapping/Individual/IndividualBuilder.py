@@ -134,8 +134,8 @@ class IndividualBuilder:
             return infellowship_email
         elif not pd.isnull(preferred_email):
             return preferred_email
-        else:
-            return str(personal_email)
+        elif not pd.isnull(personal_email):
+            return personal_email
 
     @staticmethod
     def is_email_active(value):
