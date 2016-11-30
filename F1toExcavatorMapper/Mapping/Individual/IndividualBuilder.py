@@ -1,5 +1,6 @@
 import re
 
+import numpy
 import pandas as pd
 import F1toExcavatorMapper.Utils.CSVOperations as csvops
 
@@ -129,12 +130,12 @@ class IndividualBuilder:
         infellowship_email = row['Email']
         personal_email = row['Personal_Email']
         preferred_email = row['Preferred_Email']
-        if infellowship_email is not None and infellowship_email != '':
+        if not pd.isnull(infellowship_email):
             return infellowship_email
-        elif preferred_email is not None and preferred_email != '':
+        elif not pd.isnull(preferred_email):
             return preferred_email
         else:
-            return personal_email
+            return str(personal_email)
 
     @staticmethod
     def is_email_active(value):

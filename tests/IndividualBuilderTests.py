@@ -3,12 +3,15 @@ from pandas import Series
 import pandas as pd
 import numpy.testing as npt
 import numpy as np
+import os
+import F1toExcavatorMapper.Utils.CSVOperations as csvops
 
-from F1toExcavatorMapper.Mapping.Family import FamilyBuilder
-from F1toExcavatorMapper.Mapping.Individual import IndividualBuilder
+from F1toExcavatorMapper.Utils.Singleton import Singleton
+from F1toExcavatorMapper.Mapping.Individual.IndividualBuilder import IndividualBuilder
 from F1toExcavatorMapper.Mapping.SourceCSVType import SourceCSVType
 from F1toExcavatorMapper.Mapping.TargetCSVType import TargetCSVType
 
+THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
 class IndividualBuilderTests(unittest.TestCase):
     fake_head_individual_household = {'Individual_ID': '77071800',
@@ -194,7 +197,7 @@ class IndividualBuilderTests(unittest.TestCase):
                                         'Comment': ''}
 
     def setUp(self):
-        self.individual_builder = IndividualBuilder.IndividualBuilder.Instance()
+        self.individual_builder = IndividualBuilder.Instance()
         self.data = pd.DataFrame([self.fake_spouse_individual_household, self.fake_head_individual_household],
                                  columns=SourceCSVType.INDIVIDUAL_HOUSEHOLD.columns)
 
@@ -247,6 +250,10 @@ class IndividualBuilderTests(unittest.TestCase):
         data = pd.Series(test_data).map(self.individual_builder.get_household_position)
         npt.assert_array_equal(data, correct_answers)
 
+    def test_email_test_data(self):
+        df = csvops.read_file_without_check(THIS_DIR + "/testdata/X9400_no_attributes.csv")
+        results = self.individual_builder.build_individual_core_frame(df)
+        npt.assert_array_equal(['infellowship@gmail.com', 'personal@gmail.com'], results['Email'])
 
 if __name__ == '__main__':
     unittest.main()
