@@ -217,13 +217,13 @@ class IndividualBuilderTests(unittest.TestCase):
         npt.assert_array_equal(is_email_active, correct_is_email_active)
 
     def test_get_email(self):
-        test_email_data = [{'Preferred_Email': '',
+        test_email_data = [{'Preferred_Email': float('nan'),
                             'Email': 'infellowship@fakeinbox.com',
                             'Personal_Email': 'fred@fakeinbox.com'}, {'Preferred_Email': 'preferredemail@fakeinbox.com',
-                                                                      'Email': '',
+                                                                      'Email': float('nan'),
                                                                       'Personal_Email': 'fredpersonal@fakeinbox.com'},
-                           {'Preferred_Email': '',
-                            'Email': '',
+                           {'Preferred_Email': float('nan'),
+                            'Email': float('nan'),
                             'Personal_Email': 'fred@fakeinbox.com'}]
         correct_emails = ('infellowship@fakeinbox.com', 'preferredemail@fakeinbox.com', 'fred@fakeinbox.com')
         email_frame = pd.DataFrame(test_email_data)
