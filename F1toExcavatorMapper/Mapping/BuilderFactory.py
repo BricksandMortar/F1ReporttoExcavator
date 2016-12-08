@@ -1,3 +1,4 @@
+from F1toExcavatorMapper.Mapping.AttributeNotes.AttributeNotesBuilder import AttributeNotesBuilder
 from F1toExcavatorMapper.Mapping.Family.FamilyBuilder import FamilyBuilder
 from F1toExcavatorMapper.Mapping.Finances.FinancialBuilder import FinancialBuilder
 from F1toExcavatorMapper.Mapping.Individual.IndividualBuilder import IndividualBuilder
@@ -11,3 +12,8 @@ def get_builder(target_type: TargetCSVType):
         return FamilyBuilder.Instance()
     elif target_type == TargetCSVType.CONTRIBUTION or target_type == TargetCSVType.BATCH:
         return FinancialBuilder.Instance()
+    elif target_type == TargetCSVType.NOTE:
+        return AttributeNotesBuilder.Instance()
+    else:
+        return None
+

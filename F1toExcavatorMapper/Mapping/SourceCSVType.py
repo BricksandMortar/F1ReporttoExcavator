@@ -182,6 +182,14 @@ class SourceCSVType(Enum):
                'Liquidation_Costs',
                'Memo'), [TargetCSVType.CONTRIBUTION, TargetCSVType.BATCH], Mode.CREATE)
 
+    ATTRIBUTE_NOTES = (('individual_id_1',
+                        'attribute_group_name',
+                        'attribute_name',
+                        'start_date',
+                        'end_date',
+                        'comment'
+                        ), [TargetCSVType.NOTE], Mode.CREATE)
+
     def __init__(self, columns, target_types, mode):
         self.columns = columns
         self.target_types = target_types
