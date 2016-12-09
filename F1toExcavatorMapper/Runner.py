@@ -35,7 +35,7 @@ def get_settings():
 
 def get_source_csv_type(file_type):
     for source_type in SourceCSVType:
-        if source_type.name.lower() == file_type:
+        if source_type.name.lower() == file_type.lower():
             return source_type
     return None
 
