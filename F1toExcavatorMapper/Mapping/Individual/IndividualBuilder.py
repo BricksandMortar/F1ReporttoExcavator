@@ -32,15 +32,24 @@ class IndividualBuilder:
         attribute_data['start_date'] = pd.to_datetime(attribute_data['start_date'])
         # Convert to Int
         attribute_data['individual_id_1'] = attribute_data['individual_id_1'].astype(int)
-        self.individual_frame['PersonId'] = self.individual_frame['PersonId'].astype(int)
+        # Take a copy so we can join the comments back on later
+        attribute_data_comments = attribute_data.copy(True)
         # Remove duplicates and take the most recent
         attribute_data = attribute_data.groupby(['individual_id_1', 'attribute_name']).max()['start_date'].reset_index()
         # Pivot to get columns of attribute names with values below
         attribute_data = attribute_data.pivot(index='individual_id_1', columns='attribute_name', values='start_date')
+        # Rename attribute_name to attribute_name_date
+        for name in attribute_data.columns:
+            attribute_data.rename(columns={name: name+' Date'}, inplace=True)
         # Change index to PersonId so we can concat
         attribute_data.index.rename('PersonId', True)
         # Result is attributes appended to the existing Individual_Id data
         self.individual_frame = self.individual_frame.join(attribute_data, on='PersonId')
+
+        # Also copy the comments over
+        attribute_data_comments = attribute_data_comments.pivot(index='individual_id_1', columns='attribute_name', values='comment')
+        attribute_data_comments.index.rename('PersonId', True)
+        self.individual_frame = self.individual_frame.join(attribute_data_comments, on='PersonId')
         return self.individual_frame
 
     def build_individual_core_frame(self, data):
