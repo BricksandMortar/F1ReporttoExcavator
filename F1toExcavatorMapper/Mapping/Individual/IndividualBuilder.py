@@ -84,6 +84,10 @@ class IndividualBuilder:
         individual_frame['DateOfBirth'] = individual_frame['DateOfBirth'].map(csvops.parse_date)
         individual_frame['CreatedDate'] = individual_frame['CreatedDate'].map(csvops.parse_date)
 
+        # Ensure we have a family and PersonId
+        individual_frame = individual_frame[pd.notnull(individual_frame['PersonId'])]
+        individual_frame = individual_frame[pd.notnull(individual_frame['FamilyId'])]
+
         # Ensure that IDs are ints not floats
         individual_frame['PersonId'] = individual_frame['PersonId'].astype(int)
         individual_frame['FamilyId'] = individual_frame['FamilyId'].astype(int)
