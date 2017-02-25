@@ -11,6 +11,7 @@ from F1toExcavatorMapper.Mapping.TargetCSVType import TargetCSVType
 regex = re.compile('[^a-zA-Z]')
 ext_regex = re.compile('[e|E]xt[.]*\s*')
 
+
 @Singleton
 class IndividualBuilder:
     def __init__(self):
@@ -19,8 +20,40 @@ class IndividualBuilder:
     def map(self, data, source_type):
         if source_type == SourceCSVType.ATTRIBUTES:
             return self.add_attributes_to_frame(data)
+        elif source_type == SourceCSVType.REQUIREMENTS:
+            return self.add_requirements_to_frame(data)
         else:
             return self.build_individual_core_frame(data)
+
+    def add_requirements_to_frame(self, requirements_data):
+        if self.individual_frame is None:
+            raise Exception('Individual frame not constructed before individual attributes')
+
+        # By manually indexing we keep the column *and* get the index
+        self.individual_frame.index = self.individual_frame.set_index(['PersonId'])
+
+        requirements_data['Date'] = pd.to_datetime(requirements_data['Date'])
+        requirements_data['Individual Id'] = requirements_data['Individual Id'].astype(int)
+
+        # Take a copy so we can pivot a second time for the status data
+        requirements_data_status = requirements_data.copy(True)
+
+        # Remove duplicates, take the most recent, and pivot to get columns of Requirements with the date as a value
+        requirements_data = requirements_data.groupby(['Individual Id', 'Name']).max()['Date'].reset_index()
+        requirements_data = requirements_data.pivot(index='Individual', columns='Name', values='Date')
+        # Rename Name to Name Date
+        for name in requirements_data.columns:
+            requirements_data.rename(columns={name: name + ' Date'}, inplace=True)
+
+        # Rename index to be able to concat and then concat
+        requirements_data.index.rename('PersonId', True)
+        self.individual_frame = self.individual_frame.join(requirements_data, on='PersonId')
+
+        requirements_data_status = requirements_data_status.pivot(index='Individual Id', columns='Name',
+                                                                  values='Status')
+        requirements_data_status.index.rename('PersonId', True)
+        self.individual_frame = self.individual_frame.join(requirements_data_status, on='PersonId')
+        return self.individual_frame
 
     def add_attributes_to_frame(self, attribute_data):
         if self.individual_frame is None:
@@ -40,14 +73,15 @@ class IndividualBuilder:
         attribute_data = attribute_data.pivot(index='individual_id_1', columns='attribute_name', values='start_date')
         # Rename attribute_name to attribute_name_date
         for name in attribute_data.columns:
-            attribute_data.rename(columns={name: name+' Date'}, inplace=True)
+            attribute_data.rename(columns={name: name + ' Date'}, inplace=True)
         # Change index to PersonId so we can concat
         attribute_data.index.rename('PersonId', True)
         # Result is attributes appended to the existing Individual_Id data
         self.individual_frame = self.individual_frame.join(attribute_data, on='PersonId')
 
         # Also copy the comments over
-        attribute_data_comments = attribute_data_comments.pivot(index='individual_id_1', columns='attribute_name', values='comment')
+        attribute_data_comments = attribute_data_comments.pivot(index='individual_id_1', columns='attribute_name',
+                                                                values='comment')
         attribute_data_comments.index.rename('PersonId', True)
         self.individual_frame = self.individual_frame.join(attribute_data_comments, on='PersonId')
         return self.individual_frame
@@ -113,7 +147,6 @@ class IndividualBuilder:
         individual_frame['PersonId'] = individual_frame['PersonId'].astype(int)
         individual_frame['FamilyId'] = individual_frame['FamilyId'].astype(int)
         individual_frame['DateOfBirth'] = pd.to_datetime(individual_frame['DateOfBirth'])
-
 
         # Reorder columns and select only the ones needed by Excavator
         individual_frame = individual_frame[list(TargetCSVType.INDIVIDUAL.columns)]

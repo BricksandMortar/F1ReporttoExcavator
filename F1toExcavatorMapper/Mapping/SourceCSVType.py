@@ -190,6 +190,13 @@ class SourceCSVType(Enum):
                         'comment'
                         ), [TargetCSVType.NOTE], Mode.CREATE)
 
+    REQUIREMENTS = (('Individual Id',
+                     'Name',
+                     'Status',
+                     'Date',
+                     'Portal User'
+                     ), [TargetCSVType.INDIVIDUAL], Mode.APPEND)
+
     def __init__(self, columns, target_types, mode):
         self.columns = columns
         self.target_types = target_types
