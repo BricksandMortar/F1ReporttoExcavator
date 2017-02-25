@@ -1,6 +1,6 @@
 import re
 
-import numpy
+import numpy as np
 import pandas as pd
 import F1toExcavatorMapper.Utils.CSVOperations as csvops
 
@@ -9,7 +9,7 @@ from F1toExcavatorMapper.Mapping.SourceCSVType import SourceCSVType
 from F1toExcavatorMapper.Mapping.TargetCSVType import TargetCSVType
 
 regex = re.compile('[^a-zA-Z]')
-
+ext_regex = re.compile('[e|E]xt[.]*\s*')
 
 @Singleton
 class IndividualBuilder:
@@ -72,12 +72,24 @@ class IndividualBuilder:
                                                                               'SecurityNote', 'IsDeceased',
                                                                               'IsEmailActive',
                                                                               'Allow Bulk Email?'))])
+
+        # Ensure phone numbers are strings and there is no "nan" for blank cells
+        individual_frame['HomePhone'] = individual_frame['HomePhone'].astype(str)
+        individual_frame['MobilePhone'] = individual_frame['MobilePhone'].astype(str)
+        individual_frame['WorkPhone'] = individual_frame['WorkPhone'].astype(str)
+        individual_frame['HomePhone'] = individual_frame['HomePhone'].replace('nan', '', regex=True)
+        individual_frame['MobilePhone'] = individual_frame['MobilePhone'].replace('nan', '', regex=True)
+        individual_frame['WorkPhone'] = individual_frame['WorkPhone'].replace('nan', '', regex=True)
+
         # Fill default values and apply mapping functions
         individual_frame['SMS Allowed?'] = individual_frame['SMS Allowed?'].fillna('Yes')
         individual_frame['Prefix'] = individual_frame.apply(self.get_prefix, axis=1)
         individual_frame['FamilyRole'] = individual_frame['FamilyRole'].map(self.get_household_position)
         individual_frame['IsDeceased'] = individual_frame.apply(self.get_is_deceased, axis=1)
         individual_frame['RecordStatus'] = individual_frame['RecordStatus'].map(self.get_record_status)
+        individual_frame['HomePhone'] = individual_frame['HomePhone'].map(self.cleanup_numbers)
+        individual_frame['WorkPhone'] = individual_frame['WorkPhone'].map(self.cleanup_numbers)
+        individual_frame['MobilePhone'] = individual_frame['MobilePhone'].map(self.cleanup_numbers)
         individual_frame['Email'] = individual_frame.apply(self.get_email, axis=1)
         individual_frame['IsEmailActive'] = individual_frame['Unsubscribed'].map(self.is_email_active)
         individual_frame['Allow Bulk Email?'] = individual_frame['IsEmailActive']
@@ -92,6 +104,7 @@ class IndividualBuilder:
         individual_frame['PersonId'] = individual_frame['PersonId'].astype(int)
         individual_frame['FamilyId'] = individual_frame['FamilyId'].astype(int)
         individual_frame['DateOfBirth'] = pd.to_datetime(individual_frame['DateOfBirth'])
+
 
         # Reorder columns and select only the ones needed by Excavator
         individual_frame = individual_frame[list(TargetCSVType.INDIVIDUAL.columns)]
@@ -120,6 +133,13 @@ class IndividualBuilder:
             return 'Inactive'
         else:
             return 'Active'
+
+    @staticmethod
+    def cleanup_numbers(value):
+        value = value.translate({ord(c): None for c in '{}[]().'})
+        value = ext_regex.sub("x", value)
+        # remove all whitespace
+        return "".join(value.split())
 
     @staticmethod
     def get_is_deceased(row):
