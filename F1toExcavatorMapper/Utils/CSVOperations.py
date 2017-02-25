@@ -85,6 +85,8 @@ def read_file_without_check(file_path):
 def __read_file(file_path):
     with open(file_path, 'r') as file:
         data = pd.read_csv(file, index_col=False)
+    if ('ï»¿' in data.columns.values[0]):
+        data.rename(columns={data.columns.values[0]: data.columns.values[0].replace('ï»¿', '')}, inplace=True)
     return data
 
 
