@@ -15,7 +15,11 @@ def run():
     for file_type, source_file_path in settings.items():
         source_type = get_source_csv_type(file_type)
         for target_type in source_type.target_types:
-            Mapper.run(source_file_path, target_type, source_type)
+            if isinstance(source_file_path, list):
+                for path in source_file_path:
+                    Mapper.run(path, target_type, source_type)
+            else:
+                Mapper.run(source_file_path, target_type, source_type)
 
 
 def get_settings():
