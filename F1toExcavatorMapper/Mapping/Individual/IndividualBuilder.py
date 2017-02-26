@@ -41,9 +41,13 @@ class IndividualBuilder:
         # Remove duplicates, take the most recent, and pivot to get columns of Requirements with the date as a value
         requirements_data = requirements_data.groupby(['Individual Id', 'Name']).max()['Date'].reset_index()
         requirements_data = requirements_data.pivot(index='Individual', columns='Name', values='Date')
-        # Rename Name to Name Date
+
+        # Rename Name to Name Date and drop entirely empty columns
         for name in requirements_data.columns:
-            requirements_data.rename(columns={name: name + ' Date'}, inplace=True)
+            if requirements_data[name].isnull().all():
+                requirements_data.drop(name, axis=1, inplace=True)
+            else:
+                requirements_data.rename(columns={name: name + ' Date'}, inplace=True)
 
         # Rename index to be able to concat and then concat
         requirements_data.index.rename('PersonId', True)
@@ -51,6 +55,12 @@ class IndividualBuilder:
 
         requirements_data_status = requirements_data_status.pivot(index='Individual Id', columns='Name',
                                                                   values='Status')
+
+        # Get rid of blank columns
+        for name in requirements_data_status.columns:
+            if requirements_data_status[name].isnull().all():
+                requirements_data_status.drop(name, axis=1, inplace=True)
+
         requirements_data_status.index.rename('PersonId', True)
         self.individual_frame = self.individual_frame.join(requirements_data_status, on='PersonId')
         return self.individual_frame
@@ -60,20 +70,38 @@ class IndividualBuilder:
             raise Exception('Individual frame not constructed before individual attributes')
         # By manually indexing we keep the column *and* get the index
         self.individual_frame.index = self.individual_frame.set_index(['PersonId'])
-
         # Convert to DateTime
         attribute_data['start_date'] = pd.to_datetime(attribute_data['start_date'])
         # Convert to Int
         attribute_data['individual_id_1'] = attribute_data['individual_id_1'].astype(int)
+
+        # Check if both start date, end date, and comments are non-consistent, if so we'll copy over booleans.
+        consistent = (not attribute_data['start_date'].isnull().values.any()) or \
+                     (not attribute_data['comment'].isnull().values.any()) or \
+                     (not attribute_data['end_date'].isnull().values.any())
+
+        if not consistent:
+            attribute_data_boolean = attribute_data.copy(True)
+            attribute_data_boolean = attribute_data_boolean.pivot(index='individual_id_1', columns='attribute_name', values='individual_id_1')
+            attribute_data_boolean.index.rename('PersonId', True)
+
+            for name in attribute_data_boolean.columns:
+                attribute_data_boolean[name].loc[attribute_data_boolean.index] = True
+
+            self.individual_frame = self.individual_frame.join(attribute_data_boolean, on='PersonId')
+
         # Take a copy so we can join the comments back on later
         attribute_data_comments = attribute_data.copy(True)
         # Remove duplicates and take the most recent
         attribute_data = attribute_data.groupby(['individual_id_1', 'attribute_name']).max()['start_date'].reset_index()
         # Pivot to get columns of attribute names with values below
         attribute_data = attribute_data.pivot(index='individual_id_1', columns='attribute_name', values='start_date')
-        # Rename attribute_name to attribute_name_date
+        # Rename attribute_name to attribute_name_date and drop empty columns
         for name in attribute_data.columns:
-            attribute_data.rename(columns={name: name + ' Date'}, inplace=True)
+            if attribute_data[name].isnull().all():
+                attribute_data.drop(name, axis=1, inplace=True)
+            else:
+             attribute_data.rename(columns={name: name + ' Date'}, inplace=True)
         # Change index to PersonId so we can concat
         attribute_data.index.rename('PersonId', True)
         # Result is attributes appended to the existing Individual_Id data
@@ -83,6 +111,13 @@ class IndividualBuilder:
         attribute_data_comments = attribute_data_comments.pivot(index='individual_id_1', columns='attribute_name',
                                                                 values='comment')
         attribute_data_comments.index.rename('PersonId', True)
+
+        for name in attribute_data_comments.columns:
+            if attribute_data_comments[name].isnull().all():
+                attribute_data_comments.drop(name, axis=1, inplace=True)
+            elif not consistent:
+                attribute_data.rename(columns={name: name + ' Comment'}, inplace=True)
+
         self.individual_frame = self.individual_frame.join(attribute_data_comments, on='PersonId')
         return self.individual_frame
 
