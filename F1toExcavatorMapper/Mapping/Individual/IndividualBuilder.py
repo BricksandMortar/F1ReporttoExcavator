@@ -216,7 +216,22 @@ class IndividualBuilder:
         value = value.translate({ord(c): None for c in '{}[]().'})
         value = ext_regex.sub("x", value)
         # remove all whitespace
-        return "".join(value.split())
+        value = "".join(value.split())
+
+        country_index = value.find('+')
+        if value.find('x') > 0:
+            ext_index = value.find('x')
+        else:
+            ext_index = len(value)
+
+        if country_index > 0 and (country_index + 3 > len(value) or ext_index - 3 < 0 or
+                                              ext_index - 3 > len(value)-country_index-3):
+            return ''
+
+        if ext_index > 0 and (ext_index > len(value)):
+            return ''
+
+        return value
 
     @staticmethod
     def get_is_deceased(row):
