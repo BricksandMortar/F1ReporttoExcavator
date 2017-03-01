@@ -89,7 +89,7 @@ class FinancialBuilder:
         unique_batches = data.copy()
         # Get a concat id
         unique_batches['ConcatId'] = unique_batches['Batch_Date'].map(str) + unique_batches['Batch_Name'] + \
-            unique_batches['Batch_Entered'].map(str)
+                                     unique_batches['Batch_Entered'].map(str)
         unique_batches = unique_batches[['Batch_Name', 'Batch_Date', 'ConcatId', 'Batch_Entered']]
         # Generate ids
         id_values = pd.factorize(unique_batches['ConcatId'])[0]
@@ -126,7 +126,8 @@ class FinancialBuilder:
         contribution_type = row['ContributionTypeName']
         if contribution_type == 'Check':
             reference = row['Reference']
-            if reference != '':
+            if isinstance(reference, int) or (isinstance(reference, float) and reference.is_integer()) or \
+                    (isinstance(reference, str) and reference != '' and reference.isdigit()):
                 return int(reference)
             return 0
         return np.nan
@@ -134,7 +135,14 @@ class FinancialBuilder:
     @staticmethod
     def get_stated_value(row):
         amount = row['Amount']
+        if isinstance(amount, str) and amount.find('$') >= 0:
+            amount = amount.replace('$', '')
+
         true_value = row['True_Value']
+        if isinstance(true_value, str) and true_value.find('$') >= 0:
+            true_value = true_value.replace('$', '')
+
+        true_value = float(true_value)
         if true_value is None or true_value == '' or math.isnan(true_value):
             return Decimal(amount)
         return Decimal(true_value)
