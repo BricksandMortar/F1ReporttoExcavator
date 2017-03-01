@@ -40,7 +40,7 @@ class IndividualBuilder:
 
         # Remove duplicates, take the most recent, and pivot to get columns of Requirements with the date as a value
         requirements_data = requirements_data.groupby(['Individual Id', 'Name']).max()['Date'].reset_index()
-        requirements_data = requirements_data.pivot(index='Individual', columns='Name', values='Date')
+        requirements_data = requirements_data.pivot(index='Individual Id', columns='Name', values='Date')
 
         # Rename Name to Name Date and drop entirely empty columns
         for name in requirements_data.columns:
