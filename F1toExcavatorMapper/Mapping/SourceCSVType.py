@@ -54,11 +54,8 @@ class SourceCSVType(Enum):
                    'Time', 'Individual Type', 'Job', 'Group Name', 'Group Type Name', 'Campus Name'),
                   [TargetCSVType.ATTENDANCE], Mode.CREATE)
 
-    GROUP_MEMBER = (('Assignment Status', 'Assigned', 'Individual ID', 'Last Name', 'First Name', 'Staff Type', 'Job',
-                     'Ministry', 'Activity', 'Activity Schedule /  Service Time', 'Volunteer/Staff Schedule',
-                     'Roster Folder', 'Roster', 'Last Updated', 'Group Type Id', 'Group Id', 'Group', 'Role',
-                     'Assigned Team', 'Assigned Services', 'Member Status', 'Joined', 'Inactivated', 'Rock Job'),
-                    [TargetCSVType.ATTENDANCE], Mode.APPEND)
+    ATTENDANCE_MAPPING = (('F1 Ministry', 'F1 Activity', 'F1 Roster', 'Individual Type', 'Group Type Id', 'Group Id',
+                           'Group Name'), [TargetCSVType.ATTENDANCE], Mode.APPEND)
 
     def __init__(self, columns, target_types, mode):
         self.columns = columns

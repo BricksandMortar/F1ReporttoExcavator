@@ -14,62 +14,86 @@ ext_regex = re.compile('[e|E]xt[.]*\s*')
 @Singleton
 class AttendanceBuilder:
     def __init__(self):
+        self.attendance_mapping = None
         self.attendance_frame = None
 
     def map(self, data, source_type):
         if source_type == SourceCSVType.ATTENDANCE:
             return self.build_attendance_frame(data)
-        elif source_type == SourceCSVType.GROUP_MEMBER:
-            return self.match_group_member_data(data)
+        elif source_type == SourceCSVType.ATTENDANCE_MAPPING:
+            return self.match_attendance_mapping_data(data)
 
-    def match_group_member_data(self, group_member_data):
-        if self.attendance_frame is None:
-            raise Exception('Attendance frame not constructed before attempting to add group member data')
-        # By manually indexing we keep the column *and* get the index
-        # self.attendance_frame.index = self.attendance_frame.set_index(['Individual Id', 'Ministry', 'Activity',
-        #                                                                'Roster'])
-        # self.attendance_frame.index = self.attendance_frame.set_index(['Individual Id'])
+    def match_attendance_mapping_data(self, attendance_mapping_data):
+        attendance_mapping_data = attendance_mapping_data.rename(
+            columns={'F1 Ministry': 'Ministry', 'F1 Activity': 'Activity',
+                     'F1 Roster': 'Roster'})
+        attendance_mapping_data['Ministry'] = attendance_mapping_data['Ministry'].astype(str)
+        attendance_mapping_data['Activity'] = attendance_mapping_data['Activity'].astype(str)
+        attendance_mapping_data['Roster'] = attendance_mapping_data['Roster'].astype(str)
+        attendance_mapping_data['Ministry'] = attendance_mapping_data['Ministry'].map(self.remove_single_quotes)
+        attendance_mapping_data['Activity'] = attendance_mapping_data['Activity'].map(self.remove_single_quotes)
+        attendance_mapping_data['Roster'] = attendance_mapping_data['Roster'].map(self.remove_single_quotes)
+        attendance_mapping_data['Individual Type'] = attendance_mapping_data['Individual Type'].astype(str)
 
-        # Convert to Int
-        group_member_data['Individual ID'] = group_member_data['Individual ID'].astype(int)
-        group_member_data = group_member_data.rename(columns={'Individual ID': 'Individual Id'})
-
-        group_member_data = group_member_data.loc[:, ['Individual Id', 'Ministry', 'Activity', 'Roster', 'Group Id',
-                                                      'Group Type Id']]
-
-        # Change index to PersonId so we can concat
-        # group_member_data.index = group_member_data.set_index('Individual Id')
-        # Replace NaNs
-        group_member_data = group_member_data.fillna('')
-
-        print(group_member_data.head())
-
-        # Result is attributes appended to the existing Individual_Id data
-        self.attendance_frame = pd.merge(self.attendance_frame, group_member_data, how='outer',
-                                         on=['Individual Id', 'Ministry',
-                                             'Activity', 'Roster'])
-        return self.attendance_frame
+        attendance_mapping_data['IsParticipant'] = attendance_mapping_data.apply(self.is_participant, axis=1)
+        attendance_mapping_data['ConcatId'] = attendance_mapping_data.apply(self.get_concat_id, axis=1)
+        self.attendance_mapping = pd.Series(attendance_mapping_data['Group Id'].values,
+                                            index=attendance_mapping_data.ConcatId).to_dict()
+        return None
 
     def build_attendance_frame(self, data):
-
+        if self.attendance_mapping is None:
+            raise Exception('Attendance mapping data not constructed before attempting to add attendance data')
         # Select the subset of columns needed for mapping
+
         attendance_frame = data.loc[:,
                            ['Individual ID', 'Ministry', 'Activity', 'Roster', 'Date', 'Time', 'Individual Type',
                             'Job']]
 
-        # Rename individual id to match Excavator naming
-        attendance_frame = attendance_frame.rename(columns={'Individual ID': 'Individual Id'})
-
-        # Ensure we have a family and PersonId
-        attendance_frame = attendance_frame[pd.notnull(attendance_frame['Individual Id'])]
-
         # Ensure that IDs are ints not floats
-        attendance_frame['Individual Id'] = attendance_frame['Individual Id'].astype(int)
+
+        attendance_frame = attendance_frame[pd.notnull(attendance_frame['Individual ID'])]
+        attendance_frame['Individual ID'] = attendance_frame['Individual ID'].astype(int)
+        # Ensure other critical columns have the correct type
+        attendance_frame['Ministry'] = attendance_frame['Ministry'].astype(str)
+        attendance_frame['Activity'] = attendance_frame['Activity'].astype(str)
+        attendance_frame['Roster'] = attendance_frame['Roster'].astype(str)
+        attendance_frame['Ministry'] = attendance_frame['Ministry'].map(self.remove_single_quotes)
+        attendance_frame['Activity'] = attendance_frame['Activity'].map(self.remove_single_quotes)
+        attendance_frame['Roster'] = attendance_frame['Roster'].map(self.remove_single_quotes)
+        attendance_frame['Individual Type'] = attendance_frame['Individual Type'].astype(str)
+
+        # Remove nans
+        attendance_frame = attendance_frame.fillna('')
+
+        attendance_frame['IsParticipant'] = attendance_frame.apply(self.is_participant, axis=1)
+        attendance_frame['ConcatId'] = attendance_frame.apply(self.get_concat_id, axis=1)
+        attendance_frame['GroupId'] = attendance_frame.apply(self.get_group_id, axis=1)
 
         # Ensure no fancy dynamic date time conversion occurs, so we can do that manually later
         attendance_frame['Date'] = attendance_frame['Date'].astype(str)
         attendance_frame['Time'] = attendance_frame['Time'].astype(str)
-        attendance_frame = attendance_frame.fillna('')
 
-        self.attendance_frame = attendance_frame
+        attendance_frame = attendance_frame[list(TargetCSVType.ATTENDANCE.columns)]
         return attendance_frame
+
+    @staticmethod
+    def is_participant(row):
+        if row['Individual Type'] == 'Participant':
+            return 'P'
+        return ''
+
+    @staticmethod
+    def remove_single_quotes(value):
+        return value.replace("'", "")
+
+    @staticmethod
+    def get_concat_id(row):
+        return (row['Ministry'] + row['Activity'] + row['Roster'] + row['IsParticipant']).replace("'", "").replace(' ', '')
+
+    def get_group_id(self, row):
+        try:
+            return self.attendance_mapping[row['ConcatId']]
+        except:
+            print(row['ConcatId'])
+            return '0'
