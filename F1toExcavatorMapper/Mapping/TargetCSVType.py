@@ -80,6 +80,9 @@ class TargetCSVType(Enum):
                                  'note_id'
                         ))
 
+    ATTENDANCE = ('Individual Id', ('Individual Id', 'Ministry', 'Activity', 'Roster', 'Job', 'Date', 'Time', 'Individual Type',
+                  'Group Type Id', 'Group Id', 'Volunteer Schedule'))
+
     def get_builder(self):
         return self.builder()
 

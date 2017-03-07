@@ -27,6 +27,8 @@ def run(source_file_path, target_file_type: TargetCSVType, source_type: SourceCS
     set_up(source_file_path, target_file_type, mode)
     data = CSVOperations.read_file_without_check(source_file_path)
     builder = BuilderFactory.get_builder(target_file_type)
+    if builder is None:
+        raise Exception('No matching builder was found')
     output_data = builder.map(data, source_type)
 
     target_file_path = get_target_file_path(target_file_type, source_file_path)
@@ -40,7 +42,7 @@ def set_up(source_file_path, target_file_type, mode):
     target_file_path = get_target_file_path(target_file_type, source_file_path)
 
     if not CSVOperations.check_file_exists(source_file_path):
-        raise MappingFileNotFound('Mapping File Not Found', source_file_path)
+        raise MappingFileNotFound('Mapping File Not Found at' + source_file_path, source_file_path)
 
     if CSVOperations.check_file_exists(target_file_path) and mode != Mode.APPEND:
         CSVOperations.delete_file(target_file_path)
