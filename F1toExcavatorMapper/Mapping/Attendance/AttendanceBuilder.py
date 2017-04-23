@@ -58,7 +58,7 @@ class AttendanceBuilder:
 
         attendance_mapping_data['Individual Type'] = attendance_mapping_data['Individual Type'].astype(str)
 
-        attendance_mapping_data['IsParticipant'] = attendance_mapping_data.apply(self.is_participant, axis=1)
+        attendance_mapping_data['IsParticipant'] = attendance_mapping_data.apply(self.map_is_participant, axis=1)
         attendance_mapping_data['ConcatId'] = attendance_mapping_data.apply(self.get_concat_id, axis=1)
         self.attendance_mapping = pd.Series(attendance_mapping_data['Group Id'].values,
                                             index=attendance_mapping_data.ConcatId).to_dict()
@@ -98,7 +98,7 @@ class AttendanceBuilder:
         # Remove nans
         attendance_frame = attendance_frame.fillna('')
 
-        attendance_frame['IsParticipant'] = attendance_frame.apply(self.is_participant, axis=1)
+        attendance_frame['IsParticipant'] = attendance_frame.apply(self.check_is_participant, axis=1)
         attendance_frame['ConcatId'] = attendance_frame.apply(self.get_concat_id, axis=1)
         attendance_frame['GroupId'] = attendance_frame.apply(self.get_group_id, axis=1)
 
@@ -112,13 +112,21 @@ class AttendanceBuilder:
         return attendance_frame
 
     @staticmethod
-    def is_participant(row):
-        type = row['Individual Type']
-        if type == 'Participant':
+    def map_is_participant(row):
+        individual_type = row['Individual Type']
+        if individual_type == 'Participant':
             return 'P'
-        elif type == '-- all others --':
+        elif individual_type == '-- all others --':
             return 'NP'
         return 'ANY'
+
+    @staticmethod
+    def check_is_participant(row):
+        individual_type = row['Individual Type']
+        if individual_type == 'Participant':
+            return 'P'
+        else:
+            return 'NP'
 
     @staticmethod
     def remove_single_quotes(value):
