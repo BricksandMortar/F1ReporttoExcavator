@@ -1,4 +1,5 @@
 import re
+from urllib.parse import parse_qs
 
 import pandas as pd
 
@@ -69,9 +70,9 @@ class AttendanceBuilder:
                 keys_to_alter.append(key)
 
         for key in keys_to_alter:
-            first_half_of_key = key.split('&type=')[0]
-            self.attendance_mapping[first_half_of_key + '&type=P'] = self.attendance_mapping[key]
-            self.attendance_mapping[first_half_of_key + '&type=NP'] = self.attendance_mapping[key]
+            self.attendance_mapping[str.replace(key,'&type=ANY', '&type=P')] = self.attendance_mapping[key]
+            self.attendance_mapping[str.replace(key,'&type=ANY', '&type=NP')] = self.attendance_mapping[key]
+            self.attendance_mapping[str.replace(key,'&type=ANY', '&type=D')] = self.attendance_mapping[key]
         return None
 
     def build_attendance_frame(self, data):
@@ -108,7 +109,11 @@ class AttendanceBuilder:
 
         attendance_frame = attendance_frame[list(TargetCSVType.ATTENDANCE.columns)]
         for failed_concat_id in failing_concat_ids:
-            print(failed_concat_id)
+            to_print = 'Ministry: ' + failed_concat_id.split('&activity')[0]
+            parts = parse_qs(failed_concat_id)
+            for key in parts:
+                to_print = to_print + ' ' + key + ': ' + parts[key][0]
+            print(to_print)
         return attendance_frame
 
     @staticmethod
@@ -118,6 +123,8 @@ class AttendanceBuilder:
             return 'P'
         elif individual_type == '-- all others --':
             return 'NP'
+        elif individual_type == 'Director':
+            return 'D'
         return 'ANY'
 
     @staticmethod
@@ -125,6 +132,8 @@ class AttendanceBuilder:
         individual_type = row['Individual Type']
         if individual_type == 'Participant':
             return 'P'
+        elif individual_type == 'Director':
+            return 'D'
         else:
             return 'NP'
 
@@ -149,19 +158,24 @@ class AttendanceBuilder:
         try:
             return self.attendance_mapping[row['ConcatId']]
         except:
-            # Try for match ignoring job
-            concat_id_split_on_job = row['ConcatId'].split('&job=')
-            concat_id_without_job = concat_id_split_on_job[0]
-            try:
-                return self.attendance_mapping[concat_id_without_job]
-            except:
-                # Try for match on just ministry activity and job if job exists
-                if len(concat_id_split_on_job) > 1:
-                    concat_id_ministry_activity_and_job = row['ConcatId'].split('&roster=')[0] + '&roster=&job=' + row['ConcatId'].split('&job=')[1]
-                    try:
-                        return self.attendance_mapping[concat_id_ministry_activity_and_job]
-                    except:
-                        return self.fail(row)
-                else:
+            # Try for match on just ministry activity and job if job exists
+            if len(row['Job']) > 1:
+                concat_id_ministry_activity_and_job = (row['ConcatId'].split('&roster=')[0] + '&roster=&type='+\
+                                                      row['IsParticipant']+'&job='+row['Job'])\
+                    .replace("'", "")\
+                    .replace(' ', '')
+                try:
+                    return self.attendance_mapping[concat_id_ministry_activity_and_job]
+                except:
+                    return self.fail(row)
+            else:
+                # Try for match on just ministry, activity, and individual type
+                concat_id_just_ministry_and_activity = (row['Ministry'] + '&activity=' + row['Activity'] + '&roster=' +
+                                                        '&type=' + row['IsParticipant'])\
+                    .replace("'", "")\
+                    .replace(' ', '')
+                try:
+                    return self.attendance_mapping[concat_id_just_ministry_and_activity]
+                except:
                     return self.fail(row)
 
