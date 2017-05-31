@@ -108,12 +108,14 @@ class AttendanceBuilder:
         attendance_frame['Time'] = attendance_frame['Time'].astype(str)
 
         attendance_frame = attendance_frame[list(TargetCSVType.ATTENDANCE.columns)]
+
+        # List attendance that could not be mapped
         for failed_concat_id in failing_concat_ids:
             to_print = 'Ministry: ' + failed_concat_id.split('&activity')[0]
             parts = parse_qs(failed_concat_id)
             for key in parts:
-                to_print = to_print + ' ' + key + ': ' + parts[key][0]
-            print(to_print)
+                to_print = to_print + ' ' + key[:1].upper() + key[1:] + ': ' + parts[key][0]
+            print(to_print + ' (' + failed_concat_id + ')')
         return attendance_frame
 
     @staticmethod
@@ -167,7 +169,17 @@ class AttendanceBuilder:
                 try:
                     return self.attendance_mapping[concat_id_ministry_activity_and_job]
                 except:
-                    return self.fail(row)
+                    # Try for match on just ministry, activity, and individual type
+                    concat_id_just_ministry_and_activity = (
+                    row['Ministry'] + '&activity=' + row['Activity'] + '&roster=' +
+                    '&type=' + row['IsParticipant']) \
+                        .replace("'", "") \
+                        .replace(' ', '')
+                    try:
+                        return self.attendance_mapping[concat_id_just_ministry_and_activity]
+                    except:
+                        return self.fail(row)
+
             else:
                 # Try for match on just ministry, activity, and individual type
                 concat_id_just_ministry_and_activity = (row['Ministry'] + '&activity=' + row['Activity'] + '&roster=' +
