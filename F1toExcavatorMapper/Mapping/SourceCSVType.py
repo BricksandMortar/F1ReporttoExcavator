@@ -54,6 +54,13 @@ class SourceCSVType(Enum):
                    'Time', 'Individual Type', 'Job', 'Group Name', 'Group Type Name', 'Campus Name'),
                   [TargetCSVType.ATTENDANCE], Mode.CREATE)
 
+    SMALL_GROUP = (('Household ID', 'Household Name', 'Individual ID', 'Last Name', 'First Name', 'Status Group',
+                   'Status', 'Sub Status', 'Status Date', 'DOB', 'Age', 'Gender', 'Marital Status', 'Preferred Email',
+                   'School', 'First Record Date', 'Last Updated', 'Address 1', 'City', 'State Province', 'Postal Code',
+                   'County', 'Country', 'Home Phone', 'Ministry', 'Activity', 'Roster', 'Break Out Group', 'Date',
+                   'Time', 'Individual Type', 'Job', 'Group Name', 'Group Type Name', 'Campus Name'),
+                  [TargetCSVType.ATTENDANCE], Mode.APPEND)
+
     ATTENDANCE_MAPPING = (('F1 Ministry', 'F1 Activity', 'F1 Roster', 'Individual Type', 'Group Type Id', 'Group Id',
                            'Group Name'), [TargetCSVType.ATTENDANCE], Mode.APPEND)
 

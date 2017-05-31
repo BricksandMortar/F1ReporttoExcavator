@@ -26,7 +26,7 @@ def run(source_file_path, target_file_type: TargetCSVType, source_type: SourceCS
     mode = source_type.mode
     set_up(source_file_path, target_file_type, mode)
     data = CSVOperations.read_file_without_check(source_file_path)
-    builder = BuilderFactory.get_builder(target_file_type)
+    builder = BuilderFactory.get_builder(target_file_type, source_type)
     if builder is None:
         raise Exception('No matching builder was found')
     output_data = builder.map(data, source_type)
