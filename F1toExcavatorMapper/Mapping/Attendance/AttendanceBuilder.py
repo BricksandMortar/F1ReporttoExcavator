@@ -64,15 +64,20 @@ class AttendanceBuilder:
         self.attendance_mapping = pd.Series(attendance_mapping_data['Group Id'].values,
                                             index=attendance_mapping_data.ConcatId).to_dict()
 
-        keys_to_alter = []
+        any_keys_to_alter = []
+        np_keys_to_alter = []
         for key, value in self.attendance_mapping.items():
             if '&type=ANY' in key:
-                keys_to_alter.append(key)
+                any_keys_to_alter.append(key)
+            if '&type=NP' in key:
+                any_keys_to_alter.append(key)
 
-        for key in keys_to_alter:
+        for key in any_keys_to_alter:
             self.attendance_mapping[str.replace(key,'&type=ANY', '&type=P')] = self.attendance_mapping[key]
             self.attendance_mapping[str.replace(key,'&type=ANY', '&type=NP')] = self.attendance_mapping[key]
             self.attendance_mapping[str.replace(key,'&type=ANY', '&type=D')] = self.attendance_mapping[key]
+        for key in np_keys_to_alter:
+            self.attendance_mapping[str.replace(key,'&type=NP', '&type=D')] = self.attendance_mapping[key]
         return None
 
     def build_attendance_frame(self, data):
@@ -123,10 +128,10 @@ class AttendanceBuilder:
         individual_type = row['Individual Type']
         if individual_type == 'Participant':
             return 'P'
-        elif individual_type == '-- all others --':
-            return 'NP'
         elif individual_type == 'Director':
             return 'D'
+        elif individual_type == '-- all others --':
+            return 'NP'
         return 'ANY'
 
     @staticmethod
